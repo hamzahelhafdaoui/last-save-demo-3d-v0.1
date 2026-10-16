@@ -180,6 +180,7 @@ export class Encounter {
     }
     if (this.health <= 0) {
       this.active = false;
+      useGame.setState({ enemyCount: 0 });
       this.enemies.forEach((e) => (e.actor.root.visible = false));
       ui().notify(
         "A narrow escape. The moonfern is safe. Try again when you’re ready.",
@@ -189,12 +190,18 @@ export class Encounter {
     }
     if (p.distanceTo(new T.Vector3(-13, p.y, 13)) > 27) {
       this.active = false;
+      useGame.setState({ enemyCount: 0 });
       this.enemies.forEach((e) => (e.actor.root.visible = false));
       ui().notify(
         "You slipped away through the trees.",
         "THE WARDENS REMAIN IN THE GROVE",
       );
     }
+  }
+  stop() {
+    this.active = false;
+    this.enemies.forEach((e) => (e.actor.root.visible = false));
+    useGame.setState({ enemyCount: 0 });
   }
   dispose() {
     this.active = false;

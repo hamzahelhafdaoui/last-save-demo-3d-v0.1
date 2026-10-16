@@ -99,6 +99,72 @@ export class Traveler {
         if (p) p.rotation.x = grip * 1.25;
       }
   }
+  // Two-bone reach keeps the animated paw on a moving hilt rather than near it.
+  grasp(target: T.Vector3, weight: number) {
+    for (const side of ["R", "L"]) {
+      const upper = this.parts.get("Arm_" + side)!,
+        lower = this.parts.get("Forearm_" + side)!,
+        paw = this.parts.get("Paw_" + side)!;
+      this.root.updateMatrixWorld(true);
+      const shoulder = upper.getWorldPosition(new T.Vector3()),
+        elbow = lower.getWorldPosition(new T.Vector3()),
+        hand = paw.getWorldPosition(new T.Vector3());
+      const goal = hand
+        .clone()
+        .lerp(
+          target.clone().add(new T.Vector3(0, side === "L" ? 0.07 : 0, 0)),
+          weight,
+        );
+      const direction = goal.clone().sub(shoulder),
+        distance = direction.length();
+      direction.normalize();
+      const l1 = shoulder.distanceTo(elbow),
+        restL2 = elbow.distanceTo(hand),
+        l2 = Math.max(restL2, distance - l1 + 0.015);
+      const along = T.MathUtils.clamp(
+        (l1 * l1 - l2 * l2 + distance * distance) /
+          (2 * Math.max(0.001, distance)),
+        0,
+        l1,
+      );
+      const bend = new T.Vector3(side === "L" ? 0.25 : -0.25, -1, 0.1)
+        .addScaledVector(
+          direction,
+          -new T.Vector3(side === "L" ? 0.25 : -0.25, -1, 0.1).dot(direction),
+        )
+        .normalize();
+      const desiredElbow = shoulder
+        .clone()
+        .addScaledVector(direction, along)
+        .addScaledVector(bend, Math.sqrt(Math.max(0, l1 * l1 - along * along)));
+      const elbowLocal = upper
+        .parent!.worldToLocal(desiredElbow)
+        .sub(upper.position);
+      upper.quaternion.setFromUnitVectors(
+        lower.position.clone().normalize(),
+        elbowLocal.normalize(),
+      );
+      this.root.updateMatrixWorld(true);
+      const desired = lower
+          .parent!.worldToLocal(goal.clone())
+          .sub(lower.position),
+        rest = paw.position.clone();
+      const stretch = Math.max(
+        0.8,
+        desired.length() / Math.max(0.01, rest.length()),
+      );
+      lower.scale.setScalar(stretch);
+      lower.quaternion.setFromUnitVectors(
+        rest.normalize(),
+        desired.normalize(),
+      );
+      // Keep the hand silhouette while the sleeve extends into the reach.
+      for (const child of lower.children)
+        if (child.name.startsWith("Paw") || child.name.startsWith("Finger"))
+          child.scale.setScalar(1 / stretch);
+    }
+    this.root.updateMatrixWorld(true);
+  }
   handPosition() {
     const p = this.parts.get("Paw_R") || this.parts.get("Forearm_R")!;
     return p.getWorldPosition(new T.Vector3());
@@ -111,6 +177,17 @@ export class Traveler {
     time: number,
   ) {
     this.root.position.set(position.x, position.y, position.z);
+    for (const side of ["L", "R"]) {
+      const arm = this.parts.get("Arm_" + side)!,
+        forearm = this.parts.get("Forearm_" + side)!;
+      arm.rotation.set(0, 0, 0);
+      forearm.rotation.set(0, 0, 0);
+      forearm.scale.setScalar(1);
+      for (const c of forearm.children)
+        if (c.name.startsWith("Paw") || c.name.startsWith("Finger"))
+          c.scale.setScalar(1);
+    }
+
     const speed = Math.hypot(velocity.x, velocity.z),
       moving = Math.min(1, speed / 2),
       run = Math.min(1, Math.max(0, (speed - 3) / 3));

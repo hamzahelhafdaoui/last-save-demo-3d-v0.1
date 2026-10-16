@@ -71,7 +71,7 @@ function fresh() {
         if (dist < tolerance) {
           for (const k of ["w", "a", "s", "d", "Shift"])
             await page.keyboard.up(k);
-          await page.waitForTimeout(180);
+          await page.waitForTimeout(650);
           return;
         }
         const yaw = d.yaw,
@@ -114,7 +114,7 @@ function fresh() {
         { timeout: 15000 },
       );
       await page.keyboard.press("e");
-      await page.waitForTimeout(180);
+      await page.waitForTimeout(650);
     }
     // Walk in the home, enter a real portal, walk across the river bridge and meet Edda.
     await boot(fresh());
@@ -155,6 +155,9 @@ function fresh() {
     }
     await go(-25, 8, 1.4);
     await interact("forest-echo");
+    await page.waitForFunction(() =>
+      window.lastSaveDebug?.().quest.echoes.includes("forest"),
+    );
     assert.deepEqual((await debug()).quest.echoes, ["forest"]);
     console.log("PASS moonflowers and physical echo reward");
     save = await page.evaluate(() =>
@@ -174,6 +177,9 @@ function fresh() {
     await interact("memory-1");
     await go(18, -46.5);
     await interact("memory-2");
+    await page.waitForFunction(
+      () => window.lastSaveDebug?.().quest.echoes.length === 3,
+    );
     assert.equal((await debug()).quest.echoes.length, 3);
     console.log("PASS archive reconstruction");
     save = await page.evaluate(() =>

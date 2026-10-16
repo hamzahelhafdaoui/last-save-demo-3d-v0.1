@@ -92,6 +92,7 @@ export class Controls {
           "arrowright",
           " ",
           "shift",
+          "control",
           "e",
         ].includes(k)
       ) {

@@ -198,7 +198,9 @@ export function validateSave(raw: unknown): Save {
     jacket:
       r.equipment?.jacket === true && f.inventory.includes("velvet-jacket"),
   };
-  f.home.sword = r.home?.sword === true && f.quest.sword;
+  f.home.sword = r.home?.sword === true && f.quest.sword && !f.equipment.sword;
+  if (f.sideQuest.delivered && !f.inventory.includes("moonfern-lantern"))
+    f.inventory.push("moonfern-lantern");
   f.ending = r.ending === true;
   const s = r.settings || {};
   f.settings = {

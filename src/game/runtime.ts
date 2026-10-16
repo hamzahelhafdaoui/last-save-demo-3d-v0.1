@@ -231,6 +231,7 @@ export class GameRuntime {
       this.follow.distance = id === "home" ? 5.4 : 6.5;
       this.scene.add(this.actor.root);
       this.encounter?.dispose();
+      useGame.setState({ enemyCount: 0, health: 100 });
       this.encounter =
         id === "lumen" ? new Encounter(next.scene, this.audio) : null;
       if (this.encounter && ui().save.experience === "quest")
@@ -334,7 +335,7 @@ export class GameRuntime {
       this.remember();
       const fresh = freshSave();
       ui().update(() => fresh);
-      await this.load("home");
+      await this.load("home", true);
       this.startCinematic("opening");
     } else if (name === "unstuck") {
       this.world.physics.teleport(...this.world.spawn);
@@ -727,6 +728,8 @@ export class GameRuntime {
         dt,
         this.time,
       );
+      if (this.encounter && s.experience !== "quest" && this.encounter.active)
+        this.encounter.stop();
       if (this.encounter && s.experience === "quest") {
         void this.encounter.prepare();
         if (
@@ -896,9 +899,9 @@ export class GameRuntime {
       const v = this.extraction.sample(t),
         base = this.world.pedestal!,
         p = {
-          x: 33,
-          y: ground(33, -35.5),
-          z: T.MathUtils.lerp(-35.5, -37.65, v.approach),
+          x: 33.24,
+          y: base.y + 0.33 + Math.min(0.4, v.lift * 0.3),
+          z: T.MathUtils.lerp(-35.5, base.z + 0.5, v.approach),
         };
       this.actor.update(p, { x: 0, y: 0, z: 0 }, true, dt, this.time);
       this.actor.root.rotation.y = Math.PI;
@@ -907,12 +910,33 @@ export class GameRuntime {
       const sword = this.world.sword!;
       sword.visible = true;
       sword.rotation.set(0, 0, 0);
-      if (t < 22) sword.position.set(base.x, base.y + 1.75 + v.lift, base.z);
-      else {
-        const hand = this.actor.handPosition();
-        sword.position.copy(hand);
-        sword.position.y -= 0.15;
-        sword.rotation.z = v.raise * Math.PI * 0.05;
+      sword.scale.setScalar(0.8);
+      if (t < 22) {
+        sword.position.set(base.x, base.y + 1.25 + v.lift * 0.7, base.z);
+        this.actor.grasp(
+          new T.Vector3(base.x, base.y + 1.49 + v.lift * 0.7, base.z),
+          v.reach,
+        );
+      } else {
+        this.actor.grasp(
+          new T.Vector3(
+            base.x,
+            base.y + 2.435 + v.raise * 0.15,
+            T.MathUtils.lerp(base.z, p.z, v.raise),
+          ),
+          1,
+        );
+        const hand = this.actor.handPosition(),
+          turn = v.raise * Math.PI;
+        sword.rotation.z = turn;
+        sword.position
+          .copy(hand)
+          .sub(
+            new T.Vector3(0, 0.24, 0).applyAxisAngle(
+              new T.Vector3(0, 0, 1),
+              turn,
+            ),
+          );
       }
       this.camera.position.set(base.x + v.x, base.y + v.y, base.z + v.z);
       this.camera.lookAt(base.x + v.tx, base.y + v.ty, base.z + v.tz);

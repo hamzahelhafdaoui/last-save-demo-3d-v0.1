@@ -475,7 +475,8 @@ export async function createWorld(): Promise<World> {
   }
   const pedestal = new T.Vector3(sx, sy, sz - 1.3);
   const sword = makeSword();
-  sword.position.set(sx, sy + 1.75, sz - 1.3);
+  sword.position.set(sx, sy + 1.25, sz - 1.3);
+  sword.scale.setScalar(0.8);
   scene.add(sword);
   const runes: T.Mesh[] = [];
   for (let i = 0; i < 12; i++) {

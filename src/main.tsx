@@ -9,6 +9,7 @@ import { createRoot } from "react-dom/client";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { AdaptiveDpr } from "@react-three/drei";
 import * as T from "three";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { GameRuntime } from "./game/runtime";
 import { useGame } from "./state/store";
 import { Interface } from "./ui/Interface";
@@ -69,7 +70,12 @@ function App() {
           toneMapping: T.ACESFilmicToneMapping,
           toneMappingExposure: 1.12,
         }}
-        onCreated={({ gl }) => {
+        onCreated={({ gl, scene }) => {
+          const room = new RoomEnvironment(),
+            pmrem = new T.PMREMGenerator(gl);
+          scene.environment = pmrem.fromScene(room, 0.04).texture;
+          room.dispose();
+          pmrem.dispose();
           gl.shadowMap.type = T.PCFSoftShadowMap;
           gl.domElement.tabIndex = 0;
           gl.domElement.setAttribute(

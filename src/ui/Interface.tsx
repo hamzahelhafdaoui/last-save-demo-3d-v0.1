@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo, useRef, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as T from "three";
+import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { useGame } from "../state/store";
 import { objective, type Appearance } from "../state/model";
 import { command } from "../game/runtime";
@@ -70,6 +71,13 @@ export function ItemView({ id }: { id: string }) {
       camera={{ position: [0.6, 0.3, 3.2], fov: 40 }}
       dpr={[1, 1.25]}
       gl={{ alpha: true, antialias: true }}
+      onCreated={({ gl, scene }) => {
+        const room = new RoomEnvironment(),
+          pmrem = new T.PMREMGenerator(gl);
+        scene.environment = pmrem.fromScene(room, 0.04).texture;
+        room.dispose();
+        pmrem.dispose();
+      }}
     >
       <ambientLight intensity={1.7} />
       <directionalLight position={[3, 4, 5]} intensity={4} color="#ffe4b2" />
@@ -299,6 +307,10 @@ function Inventory() {
                     update((v) => ({
                       ...v,
                       equipment: { ...v.equipment, sword: !v.equipment.sword },
+                      home: {
+                        ...v.home,
+                        sword: v.equipment.sword ? v.home.sword : false,
+                      },
                     }))
                   }
                 >
