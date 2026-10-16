@@ -2,19 +2,23 @@
 
 ## Completed evidence
 
-- 16 Node tests pass: radial analog controls and bounded camera-relative movement; Rapier ground/collision/jump/camera raycast; save validation and round-trip persistence; quest gates and unique rewards; authored extraction phases; melee facing/range/cooldowns, enemy wind-up/dodge damage avoidance; unique healer reward.
+- 19 Node tests pass: radial analog controls and bounded camera-relative movement; Rapier ground/collision/jump/camera raycast, camera-only portal blockers and bridge-safe restoration; save validation and round-trip persistence; quest gates and unique rewards; authored extraction phases; melee facing/range/cooldowns, enemy wind-up/dodge damage avoidance; unique healer reward.
 - TypeScript and Vite production builds pass. GitHub Actions has independently passed tests/build on the pushed revisions.
 - Git-connected Vercel production builds from main verified, with matching commit SHAs. Public production root returns HTTP200 and the game's title. This is not an expiring share URL.
 - Chromium + SwiftShader browser checks exercised actual home movement, the home→Lumenreach portal, the full river bridge crossing, Edda acceptance, all three flowers and forest reward, archive reconstruction, guardian runes, extraction entry/skip, equipment, city portal/identity/jacket, return-home portal, physical sword display, closing sequence, inventory and browser reload. The final run completed with a clean page-error/console-error list.
-- Separate Chromium run completed the entire 36-second sword timeline, captured 6/12/20/24/30-second frames and reached the unique item reveal. Visual review led to subsequent hand-to-hilt, camera, material-lighting and particle refinements; those are being rechecked.
+- Separate Chromium run completed the entire 36-second sword timeline, captured 6/12/20/24/30-second frames and reached the unique item reveal. The revised hand-to-hilt, camera, material-lighting and particle treatment was subsequently rendered and the complete timeline reached the unique reveal again. The sequence advances on visible elapsed time independently of the capped physics step.
 
 The main browser playthrough uses explicit localStorage checkpoints between the forest/archive/sanctuary sections, and pre-completes crossing flags in that particular script. It is not a continuous fresh-save manual playthrough. `tests/crossing.cjs` separately exercises the physical rune route. Do not describe checkpoint-based automation as an uninterrupted human walkthrough.
 
+- The separate Story Tour crossing script passed actual traversal of all three physical rune stones and courage collection.
+- Real two-pointer touch emulation passed independent joystick movement and camera orbit, release-to-stop and mobile menu bounds. Physical-device testing is still outstanding.
+- Recovery browser checks passed reload during extraction, safe pre-claim restoration, unique earned cinematic replay, fresh-demo reset, name/preset editing, and missing-GLB fallback without a broken title/play state.
+
 ## Still open
 
-- Final revised cinematic visual review and the physical crossing-specific run are in progress at this checkpoint; see session state for later results.
-- Living Quest ambush, loss/retry, player strikes/dodges, escape, delivery and home lantern need full browser/device validation and balancing. System tests cover the rules, not the entire player experience. The mode is labeled experimental.
-- Touch emulation and mobile menu/camera/input regression after the React conversion are pending; physical devices remain untested.
+- The final premium art/animation gate remains open; functional cinematic playback and screenshots are not the same as finished presentation quality.
+- Living Quest browser checks passed healer acceptance, herb pickup, the live three-enemy ambush, strike/dodge input, loss recovery with retained herbs, and a unique keepsake reward on delivery. A full victory/escape playthrough, obstacle navigation, difficulty balancing and physical-device validation remain open. The mode stays labeled experimental.
+- Physical mobile devices remain untested; touch emulation is covered as described above.
 - Safari, Firefox, native desktop GPUs, gamepads, actual speaker/headphone output and real FPS/memory profiles remain untested.
 - No claim of 60 FPS is made. Software WebGL rendering in this environment is slow and is not representative of hardware GPU performance.
 - A continuous owner/human playthrough and a timed 8–15 minute presentation remain required.

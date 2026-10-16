@@ -130,6 +130,7 @@ export function act(s: Save, id: string): ActionResult {
     };
   }
   if (id === "sword") {
+    if (q.sword) return { save: s };
     if (q.echoes.length < 3 || q.guardian < 3)
       return {
         save: s,

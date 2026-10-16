@@ -243,6 +243,7 @@ export function addEcho(save: Save, echo: Echo): Save {
   };
 }
 export function grantSword(save: Save): Save {
+  if (save.quest.sword || save.inventory.includes("dawnwake")) return save;
   if (save.quest.echoes.length !== 3 || save.quest.guardian < 3) return save;
   return {
     ...save,

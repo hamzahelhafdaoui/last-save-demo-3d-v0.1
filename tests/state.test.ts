@@ -101,3 +101,16 @@ test("inconsistent older saves repair ownership and cannot equip missing items",
   assert.equal(r.quest.guardian, 3);
   assert.equal(r.inventory.filter((i) => i === "dawnwake").length, 1);
 });
+
+test("cinematic replay preserves a mounted sword and does not equip a physical duplicate", () => {
+  let s = freshSave();
+  s = addEcho(addEcho(addEcho(s, "forest"), "crossing"), "archive");
+  s.quest.guardian = 3;
+  s = grantSword(s);
+  s = act(s, "display").save;
+  const replay = act(s, "sword").save;
+  assert.equal(replay, s);
+  assert.equal(replay.home.sword, true);
+  assert.equal(replay.equipment.sword, false);
+  assert.equal(replay.inventory.filter((x) => x === "dawnwake").length, 1);
+});

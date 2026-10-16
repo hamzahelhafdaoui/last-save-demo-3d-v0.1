@@ -331,7 +331,12 @@ export class GameRuntime {
     else if (name === "reveal-close") {
       this.setMode("play");
       this.follow.reset();
-      ui().notify("Dawnwake travels with you.", "LEGENDARY WEAPON EQUIPPED");
+      ui().notify(
+        s.equipment.sword
+          ? "Dawnwake travels with you."
+          : "Dawnwake remains in your collection.",
+        s.equipment.sword ? "LEGENDARY WEAPON EQUIPPED" : "LEGENDARY WEAPON",
+      );
     } else if (name === "replay-opening") {
       if (this.world.id !== "home") await this.load("home");
       this.startCinematic("opening");

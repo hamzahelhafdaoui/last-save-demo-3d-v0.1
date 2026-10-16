@@ -298,8 +298,8 @@ export class Environment {
     this.cottage(-12, -43, 0.5, 0.85, "#657a72");
     this.cottage(2, -50, 0.15, 0.9, "#8c6259");
     this.well(0, -34);
-    this.sign(7, 16, "HEARTHMERE", -0.2);
-    this.sign(15, -24, "BELLWEATHER RISE", 0.5);
+    this.sign(7, 16, "BELLHAVEN", -0.2);
+    this.sign(15, -24, "CROWNSTONE SANCTUARY", 0.5);
     this.bell = this.bellTower(4, -38);
     this.gate = this.portal(-7, -49);
     this.windmill = this.mill(-37, -62);
@@ -308,13 +308,13 @@ export class Environment {
         id: "bell",
         position: new T.Vector3(33, ground(33, -38), -36),
         label: "Ring the homeward bell",
-        kind: "BELLWEATHER RISE",
+        kind: "CROWNSTONE SANCTUARY",
       },
       {
         id: "well",
         position: new T.Vector3(0, ground(0, -34), -32),
         label: "Rest by the well",
-        kind: "HEARTHMERE",
+        kind: "BELLHAVEN",
       },
       {
         id: "gate",
