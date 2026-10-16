@@ -126,7 +126,21 @@ export class Physics {
     this.world.step();
   }
   teleport(x: number, z: number) {
-    this.body.setTranslation({ x, y: this.height(x, z) + 1.1, z }, true);
+    // Restore onto the actual walkable surface, including bridges and raised floors.
+    const ray = new RAPIER.Ray(
+      { x, y: this.height(x, z) + 35, z },
+      { x: 0, y: -1, z: 0 },
+    );
+    const hit = this.world.castRay(
+      ray,
+      70,
+      true,
+      RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
+      undefined,
+      this.collider,
+    );
+    const surface = hit ? ray.origin.y - hit.timeOfImpact : this.height(x, z);
+    this.body.setTranslation({ x, y: surface + 1.1, z }, true);
     this.body.setNextKinematicTranslation(this.body.translation());
     this.velocity = { x: 0, y: 0, z: 0 };
   }

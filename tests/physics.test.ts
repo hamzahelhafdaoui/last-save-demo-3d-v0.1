@@ -64,3 +64,13 @@ test("camera-only portal panel blocks the camera but remains passable for the ch
   assert.ok(p.position.z > 3);
   p.dispose();
 });
+
+test("position restore lands on a bridge surface rather than in the river underneath", () => {
+  const p = new Physics(() => -1);
+  p.box(0, 2, 0, 2, 0.5, 4);
+  p.world.step();
+  p.teleport(0, 0);
+  for (let i = 0; i < 90; i++) p.step(0, 0, 0, false, 1 / 60);
+  assert.ok(p.position.y > 2.4 && p.position.y < 2.7);
+  p.dispose();
+});

@@ -43,6 +43,7 @@ export class GameRuntime {
   private challengeTimer = 0;
   private rollDirection = { x: 0, z: -1 };
   private loading = false;
+  private justResumed = false;
   private pausedFrom: Mode = "play";
   constructor(
     private scene: T.Scene,
@@ -51,11 +52,19 @@ export class GameRuntime {
   ) {}
   async init() {
     await RAPIER.init();
+    // Warm the small factory modules, not world scenes/assets. Existing sessions
+    // can finish their journey even after main receives a newer deployment.
+    await Promise.all([
+      import("../worlds/home"),
+      import("../worlds/lumen"),
+      import("../worlds/city"),
+    ]);
     this.actor = await Traveler.load();
     this.controls = new Controls(this.renderer.domElement);
     this.beacon = ring(this.scene, 0, 0, 0, 0.5, 0.025, "#f0d9a7");
     this.beacon.rotation.x = Math.PI / 2;
     await this.load("home", true);
+    if (!this.world || ui().mode === "error" || this.disposed) return;
     this.scene.add(this.actor.root);
     this.controls.enabled = false;
     useGame.setState({ mode: "title", loaded: true });
@@ -113,6 +122,7 @@ export class GameRuntime {
       () => {
         this.controls.clear();
         this.accumulator = 0;
+        this.justResumed = !document.hidden;
         if (document.hidden) {
           this.remember();
           this.audio.pause();
@@ -225,6 +235,7 @@ export class GameRuntime {
           -next.physics.bounds + 1,
           next.physics.bounds - 1,
         );
+      next.physics.world.step();
       next.physics.teleport(x, z);
       this.lastSafe = { x, z };
       this.follow.yaw = id === "home" ? 0 : 0.16;
@@ -578,6 +589,8 @@ export class GameRuntime {
   }
   update(dt: number) {
     if (this.disposed || !this.world || !this.actor || !this.controls) return;
+    const cinematicDelta = this.justResumed ? 0 : Math.min(dt, 1);
+    this.justResumed = false;
     dt = Math.min(dt, 0.07);
     if (document.hidden) return;
     this.time += dt;
@@ -833,7 +846,7 @@ export class GameRuntime {
       this.camera.fov = 42;
       this.camera.updateProjectionMatrix();
     } else if (["opening", "cinematic", "ending"].includes(mode))
-      this.updateCinematic(dt);
+      this.updateCinematic(cinematicDelta);
     if (this.reward) {
       const r = this.reward;
       r.time += dt;

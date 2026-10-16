@@ -70,7 +70,14 @@ const assert = require("node:assert/strict");
       type: "touchEnd",
       touchPoints: [],
     });
-    await p.waitForTimeout(900);
+    await p.waitForFunction(
+      () => {
+        const v = window.lastSaveDebug?.().velocity;
+        return v && Math.hypot(v.x, v.z) < 0.2;
+      },
+      null,
+      { timeout: 20000 },
+    );
     const stopped = await p.evaluate(() => window.lastSaveDebug());
     assert.equal(stopped.stick.strength, 0);
     assert(Math.hypot(stopped.velocity.x, stopped.velocity.z) < 0.2);
