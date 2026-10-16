@@ -9,7 +9,10 @@ export class Physics {
   grounded = false;
   coyote = 0;
   jumpBuffer = 0;
-  constructor(public height: (x:number,z:number)=>number = ground, public bounds=87) {
+  constructor(
+    public height: (x: number, z: number) => number = ground,
+    public bounds = 87,
+  ) {
     this.world = new RAPIER.World({ x: 0, y: -22, z: 0 });
     const vertices: number[] = [],
       indices: number[] = [];
@@ -38,10 +41,10 @@ export class Physics {
       ).setFriction(0.8),
     );
     for (const [x, z, sx, sz] of [
-      [-bounds-2, 0, 2, bounds+4],
-      [bounds+2, 0, 2, bounds+4],
-      [0, -bounds-2, bounds+4, 2],
-      [0, bounds+2, bounds+4, 2],
+      [-bounds - 2, 0, 2, bounds + 4],
+      [bounds + 2, 0, 2, bounds + 4],
+      [0, -bounds - 2, bounds + 4, 2],
+      [0, bounds + 2, bounds + 4, 2],
     ])
       this.box(x, 15, z, sx, 40, sz);
     this.body = this.world.createRigidBody(
@@ -159,5 +162,7 @@ export class Physics {
     const p = this.body.translation();
     return { x: p.x, y: p.y - 0.8, z: p.z };
   }
-  dispose(){this.world.free();}
+  dispose() {
+    this.world.free();
+  }
 }

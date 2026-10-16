@@ -36,11 +36,14 @@ export class FollowCamera {
       dir,
       this.distance,
     );
-    this.currentDistance = possible < this.currentDistance ? possible : T.MathUtils.lerp(
-      this.currentDistance,
-      possible,
-      1 - Math.exp(-dt * (possible < this.currentDistance ? 35 : 6)),
-    );
+    this.currentDistance =
+      possible < this.currentDistance
+        ? possible
+        : T.MathUtils.lerp(
+            this.currentDistance,
+            possible,
+            1 - Math.exp(-dt * (possible < this.currentDistance ? 35 : 6)),
+          );
     const desired = this.target
       .clone()
       .addScaledVector(dir, this.currentDistance);
