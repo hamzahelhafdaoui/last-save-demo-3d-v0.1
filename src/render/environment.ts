@@ -28,16 +28,18 @@ export class Environment {
   lit = false;
   private leaves: T.InstancedMesh;
   private bladeMaterial: T.MeshStandardMaterial;
-  private sky: T.Mesh;
+  sky: T.Mesh;
+  sun!: T.DirectionalLight;
   constructor(
     public scene: T.Scene,
     public physics: Physics,
   ) {
-    scene.background = new T.Color("#b6ccca");
-    scene.fog = new T.FogExp2("#bbcfca", 0.0058);
-    const hemi = new T.HemisphereLight("#d7e9f2", "#8b8459", 2.3);
+    scene.background = new T.Color("#68698d");
+    scene.fog = new T.FogExp2("#7a7897", 0.0068);
+    const hemi = new T.HemisphereLight("#b1a4da", "#6e6558", 1.55);
     scene.add(hemi);
-    const sun = new T.DirectionalLight("#fff0cb", 2.8);
+    const sun = new T.DirectionalLight("#ffd6b4", 2.6);
+    this.sun = sun;
     sun.position.set(-38, 65, 28);
     sun.castShadow = true;
     sun.shadow.mapSize.set(2048, 2048);
@@ -55,8 +57,8 @@ export class Environment {
       new T.ShaderMaterial({
         side: T.BackSide,
         uniforms: {
-          top: { value: new T.Color("#7caec9") },
-          bottom: { value: new T.Color("#e1e9d9") },
+          top: { value: new T.Color("#484b83") },
+          bottom: { value: new T.Color("#d0a5bc") },
         },
         vertexShader:
           "varying vec3 v;void main(){v=position;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}",
@@ -72,7 +74,7 @@ export class Environment {
     const pos = geo.attributes.position,
       col = [];
     const a = new T.Color(),
-      grass = new T.Color("#799452"),
+      grass = new T.Color("#638c5b"),
       path = new T.Color("#b7ab7e"),
       shore = new T.Color("#b4b69a");
     for (let i = 0; i < pos.count; i++) {
@@ -131,12 +133,12 @@ export class Environment {
       300,
     );
     this.leaves = new T.InstancedMesh(
-      new T.IcosahedronGeometry(1, 1),
+      new T.IcosahedronGeometry(1, 2),
       material("#527c42"),
       1200,
     );
     const pines = new T.InstancedMesh(
-      new T.ConeGeometry(1, 1, 7),
+      new T.ConeGeometry(1, 1, 11),
       material("#41674a"),
       900,
     );
@@ -297,7 +299,7 @@ export class Environment {
     this.well(0, -34);
     this.sign(7, 16, "HEARTHMERE", -0.2);
     this.sign(15, -24, "BELLWEATHER RISE", 0.5);
-    this.bell = this.bellTower(33, -38);
+    this.bell = this.bellTower(4, -38);
     this.gate = this.portal(-7, -49);
     this.windmill = this.mill(-37, -62);
     this.interactions.push(
@@ -320,6 +322,7 @@ export class Environment {
         kind: "A WORLD BEYOND",
       },
     );
+    this.interactions = [];
     // Broken walls and towers on the distant ridge, visible as an exploration promise.
     this.ruins(-7, -78);
     this.mountains(rand);
