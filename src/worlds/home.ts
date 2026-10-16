@@ -1,3 +1,4 @@
+import {batchStatic} from '../render/optimize';
 import * as T from 'three';
 import {Physics} from '../physics/world';
 import {box,ball,cyl,ring,mesh,mat,text,lantern,portal,Motes,makeSword,disposeScene} from '../render/kit';
@@ -35,5 +36,6 @@ export async function createWorld():Promise<World>{
  const motes=new Motes(scene,90,22,'#ffd7a1');
  // Floating neighboring islands remain outside the playable room.
  for(let i=0;i<9;i++){const x=Math.sin(i*2.4)*55,z=40+Math.cos(i*2.4)*35;const island=mesh(scene,new T.ConeGeometry(5+i%3,7,7),mat('#343551'),[x,2+i%3*6,z]);island.rotation.z=Math.PI;mesh(scene,new T.CylinderGeometry(5+i%3,5+i%3,.5,10),mat('#526972'),[x,5.6+i%3*6,z]);if(i%2===0){const p=portal(scene,x,6+i%3*6,z,'#b69ad9','');p.scale.setScalar(.65);}}
+ batchStatic(scene,[...portals,fire,mounted,motes.object]);
  return {id:'home',scene,physics,spawn:[0,7],sun,interactions:[{id:'wardrobe',position:new T.Vector3(9,0,2),label:'Open wardrobe',radius:2.7},{id:'mirror',position:new T.Vector3(-6.5,0,2),label:'Meet your reflection'},{id:'display',position:new T.Vector3(-8,0,-3),label:'Display Dawnwake'},{id:'journal',position:new T.Vector3(7,0,7),label:'Read your journal'},{id:'portal-lumen',position:new T.Vector3(-5,0,-7),label:'Travel to Lumenreach'},{id:'portal-city',position:new T.Vector3(5,0,-7),label:'Travel to Velvet City'},{id:'locked',position:new T.Vector3(0,0,-11),label:'An unwritten world'}],update(t,dt,s){motes.update(t);updatePortals(scene,t);mounted.visible=s.home.sword;for(const o of fire.children){o.scale.y=.8+Math.sin(t*5+o.userData.phase)*.22;o.rotation.y=t*.4;}glow.intensity=19+Math.sin(t*7)*2;const city=portals[1].userData.portal as T.ShaderMaterial;city.uniforms.strength.value=s.quest.sword?1:.2;},dispose(){physics.dispose();disposeScene(scene);}};
 }

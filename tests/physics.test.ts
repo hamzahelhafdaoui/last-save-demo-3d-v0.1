@@ -1,0 +1,53 @@
+import { test, before } from "node:test";
+import assert from "node:assert/strict";
+import RAPIER from "@dimforge/rapier3d-compat";
+import { Physics } from "../src/physics/world";
+import { ground } from "../src/simulation/terrain";
+before(async () => {
+  await RAPIER.init();
+});
+function settle(p: Physics) {
+  for (let i = 0; i < 120; i++) p.step(0, 0, 0, false, 1 / 60);
+}
+test("capsule rests on terrain and advances through an open trail", () => {
+  const p = new Physics();
+  settle(p);
+  assert.ok(p.grounded);
+  assert.ok(Math.abs(p.position.y - ground(7, 25)) < 0.15);
+  const z = p.position.z;
+  for (let i = 0; i < 120; i++) p.step(0, -1, 3.25, false, 1 / 60);
+  assert.ok(z - p.position.z > 5);
+  p.world.free();
+});
+test("collision stops movement through a wall", () => {
+  const p = new Physics();
+  settle(p);
+  const y = p.position.y;
+  p.box(7, y + 2, 20, 5, 2, 0.5);
+  for (let i = 0; i < 180; i++) p.step(0, -1, 6, false, 1 / 60);
+  assert.ok(p.position.z > 20.7 && p.position.z < 22);
+  p.world.free();
+});
+test("jump rises, lands and cannot be repeated in mid-air", () => {
+  const p = new Physics();
+  settle(p);
+  const start = p.position.y;
+  p.step(0, 0, 0, true, 1 / 60);
+  for (let i = 0; i < 12; i++) p.step(0, 0, 0, false, 1 / 60);
+  assert.ok(p.position.y > start + 0.6);
+  const before = p.velocity.y;
+  p.step(0, 0, 0, true, 1 / 60);
+  assert.ok(p.velocity.y < before);
+  for (let i = 0; i < 120; i++) p.step(0, 0, 0, false, 1 / 60);
+  assert.ok(p.grounded);
+  assert.ok(Math.abs(p.position.y - start) < 0.1);
+  p.world.free();
+});
+test("camera ray detects scenery before the requested camera distance", () => {
+  const p = new Physics();
+  p.box(0, 4, 4, 2, 2, 0.5);
+  p.world.step();
+  const d = p.cameraDistance({ x: 0, y: 4, z: 0 }, { x: 0, y: 0, z: 1 }, 7);
+  assert.ok(d > 3 && d < 3.6);
+  p.world.free();
+});

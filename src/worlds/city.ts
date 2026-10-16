@@ -1,3 +1,4 @@
+import {batchStatic} from '../render/optimize';
 import * as T from 'three';
 import {Physics} from '../physics/world';
 import {box,ball,cyl,mesh,mat,text,lantern,portal,Motes,disposeScene} from '../render/kit';
@@ -24,5 +25,6 @@ export async function createWorld():Promise<World>{
  const home=portal(scene,0,0,16,'#d5b18c','THE WAYFARER’S ROOM');home.rotation.y=Math.PI;const lumen=portal(scene,0,0,-23,'#8cdbbb','LUMENREACH');
  const residents:Resident[]=await Promise.all([resident(scene,-5,0,-7,'#bd879c',1),resident(scene,2,0,3,'#4b6b82',2,true),resident(scene,-3,0,-14,'#72547d',3,true),resident(scene,4,0,-11,'#c39c77',4,true),resident(scene,-3,0,9,'#516e71',5,true)]);for(const n of residents)n.actor.appearance({name:'Resident',preset:'moon',fur:'#b9a8bd',hair:'#4b4058',hairStyle:n.phase%3,eyes:'#4d7d8c',primary:'#494564',secondary:'#c89eac',accessory:false},true,false);
  text(scene,'SABLE',-5,2.35,-7,2,'#f0b9d9');const motes=new Motes(scene,75,45,'#a6a7e6');
+ batchStatic(scene,[home,lumen,jacket,motes.object,...residents.map(n=>n.actor.root)]);
  return {id:'city',scene,physics,spawn:[0,11],sun,interactions:[{id:'sable',position:new T.Vector3(-5,0,-5.5),label:'Talk to Sable',radius:3},{id:'boutique',position:new T.Vector3(-6,0,-9),label:'Try the Velvet jacket',radius:2.8},{id:'portal-home',position:new T.Vector3(0,0,13),label:'Bring your story home'},{id:'portal-lumen',position:new T.Vector3(0,0,-21),label:'Return to Lumenreach'}],update(t,dt,s){animateResidents(residents,t,dt);updatePortals(scene,t);motes.update(t);jacket.rotation.y=Math.PI/2+Math.sin(t*.35)*.15;lit.intensity=22+Math.sin(t*.7);},dispose(){physics.dispose();disposeScene(scene);}};
 }
