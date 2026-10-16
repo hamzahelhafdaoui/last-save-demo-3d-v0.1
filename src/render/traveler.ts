@@ -26,6 +26,14 @@ export class Traveler {
       this.parts.set(o.name, o);
       this.base.set(o.name, o.position.clone());
     });
+    this.root.updateMatrixWorld(true);
+    for (const side of ["L", "R"]) {
+      const paw = this.parts.get("Paw_" + side)!;
+      for (let i = 0; i < 3; i++) {
+        const finger = this.parts.get("Finger_" + side + "_" + i);
+        if (finger) paw.attach(finger);
+      }
+    }
     this.sword.scale.setScalar(0.72);
     this.sword.position.set(0.22, 1.18, -0.23);
     this.sword.rotation.set(0.1, 0, -0.48);

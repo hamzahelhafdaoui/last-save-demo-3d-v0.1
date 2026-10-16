@@ -208,6 +208,9 @@ export async function createWorld(): Promise<World> {
   cyl(keepsake, 0, 0.65, 0, 0.6, 1.3, "#7c6972");
   lantern(keepsake, 0, 1.75, 0, "#bfe2cd");
   text(keepsake, "A LIGHT FOR THE LOST", 0, 1.1, 0.65, 2, "#dcc8a8");
+  physics.cameraPanel(-5, 0, -9);
+  physics.cameraPanel(5, 0, -9);
+  physics.cameraPanel(0, 0, -13);
   const motes = new Motes(scene, 90, 22, "#ffd7a1");
   // The opening sees a complete house; the roof cuts away after the camera enters.
   const exterior = new T.Group();

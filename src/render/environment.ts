@@ -11,6 +11,7 @@ import {
 import { Physics } from "../physics/world";
 import { material, noiseTexture } from "./materials";
 import { batchStatic } from "./optimize";
+import { particleTexture } from "./kit";
 export type Interaction = {
   id: string;
   position: T.Vector3;
@@ -339,6 +340,7 @@ export class Environment {
         new T.Float32BufferAttribute(smokePos, 3),
       ),
       new T.PointsMaterial({
+        map: particleTexture(),
         color: "#e9dfcc",
         size: 0.7,
         transparent: true,
@@ -356,6 +358,7 @@ export class Environment {
         new T.Float32BufferAttribute(fp, 3),
       ),
       new T.PointsMaterial({
+        map: particleTexture(),
         color: "#fff0bc",
         size: 0.07,
         transparent: true,

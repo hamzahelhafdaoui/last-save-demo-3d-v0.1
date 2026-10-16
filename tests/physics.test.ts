@@ -51,3 +51,16 @@ test("camera ray detects scenery before the requested camera distance", () => {
   assert.ok(d > 3 && d < 3.6);
   p.world.free();
 });
+
+test("camera-only portal panel blocks the camera but remains passable for the character", async () => {
+  await RAPIER.init();
+  const p = new Physics(() => 0);
+  p.cameraPanel(0, 0, 2);
+  p.teleport(0, 0);
+  p.world.step();
+  const d = p.cameraDistance({ x: 0, y: 1.4, z: 0 }, { x: 0, y: 0, z: 1 }, 6);
+  assert.ok(d < 2);
+  for (let i = 0; i < 120; i++) p.step(0, 1, 3, false, 1 / 60);
+  assert.ok(p.position.z > 3);
+  p.dispose();
+});

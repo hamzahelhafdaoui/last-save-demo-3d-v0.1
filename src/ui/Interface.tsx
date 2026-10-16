@@ -75,6 +75,7 @@ export function ItemView({ id }: { id: string }) {
         const room = new RoomEnvironment(),
           pmrem = new T.PMREMGenerator(gl);
         scene.environment = pmrem.fromScene(room, 0.04).texture;
+        scene.environmentIntensity = 0.6;
         room.dispose();
         pmrem.dispose();
       }}

@@ -123,6 +123,8 @@ export async function createWorld(): Promise<World> {
     label: "Speak with Edda",
     radius: 3,
   });
+  physics.cameraPanel(-1, ground(-1, 24), 24);
+  physics.cameraPanel(8, ground(8, -25), -25);
   const home = portal(
     scene,
     -1,
@@ -440,8 +442,8 @@ export async function createWorld(): Promise<World> {
     const piece = mesh(
       scene,
       new T.CylinderGeometry(
-        1.1,
-        1.2,
+        0.45,
+        0.62,
         0.75,
         4,
         1,
@@ -457,6 +459,7 @@ export async function createWorld(): Promise<World> {
   }
   const fissures = new T.Group();
   fissures.position.set(sx, sy + 0.94, sz - 1.3);
+  fissures.scale.setScalar(0.55);
   scene.add(fissures);
   for (let i = 0; i < 8; i++) {
     const a = (i / 8) * Math.PI * 2;
@@ -619,7 +622,7 @@ export async function createWorld(): Promise<World> {
         f.rotation.z = Math.sin(a) * fracture * 0.3;
       });
       fissures.visible = (scene.userData.cracks || 0) > 0.05;
-      fissures.scale.setScalar(scene.userData.cracks || 0);
+      fissures.scale.setScalar((scene.userData.cracks || 0) * 0.55);
       animateResidents(residents, t, dt);
       updatePortals(scene, t);
       dust.update(t);

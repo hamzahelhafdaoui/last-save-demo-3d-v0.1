@@ -48,7 +48,7 @@ export class Extraction {
     );
     t.to(s, { reach: 1, grip: 1, duration: 3 }, 4).to(
       s,
-      { x: 0.65, y: 1.65, z: 0.9, tx: 0.12, ty: 1.65, tz: -0.6, duration: 3 },
+      { x: 1.1, y: 1.85, z: -0.6, tx: 0.12, ty: 1.85, tz: -0.6, duration: 3 },
       5,
     );
     t.to(s, { strain: 1, lift: 0.12, duration: 5 }, 8).to(

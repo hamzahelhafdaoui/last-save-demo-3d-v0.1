@@ -139,11 +139,24 @@ export class Physics {
       new RAPIER.Ray(origin, dir),
       distance,
       true,
-      RAPIER.QueryFilterFlags.EXCLUDE_SENSORS,
+      undefined,
       undefined,
       this.collider,
     );
     return hit ? Math.max(0.6, hit.timeOfImpact - 0.2) : distance;
+  }
+  cameraPanel(x: number, y: number, z: number, angle = 0) {
+    return this.world.createCollider(
+      RAPIER.ColliderDesc.cuboid(1.9, 2.4, 0.1)
+        .setTranslation(x, y + 2.2, z)
+        .setRotation({
+          x: 0,
+          y: Math.sin(angle / 2),
+          z: 0,
+          w: Math.cos(angle / 2),
+        })
+        .setSensor(true),
+    );
   }
   surface(vertices: number[], indices: number[]) {
     return this.world.createCollider(

@@ -194,6 +194,8 @@ export async function createWorld(): Promise<World> {
   const home = portal(scene, 0, 0, 16, "#d5b18c", "THE WAYFARER’S ROOM");
   home.rotation.y = Math.PI;
   const lumen = portal(scene, 0, 0, -23, "#8cdbbb", "LUMENREACH");
+  physics.cameraPanel(0, 0, 16);
+  physics.cameraPanel(0, 0, -23);
   const residents: Resident[] = await Promise.all([
     resident(scene, -5, 0, -7, "#bd879c", 1),
     resident(scene, 2, 0, 3, "#4b6b82", 2, true),

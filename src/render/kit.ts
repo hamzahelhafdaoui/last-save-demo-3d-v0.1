@@ -1,6 +1,20 @@
 import * as T from "three";
 import { random } from "../simulation/terrain";
 const cache = new Map<string, T.MeshStandardMaterial>();
+let softParticle: T.CanvasTexture | null = null;
+export function particleTexture() {
+  if (softParticle) return softParticle;
+  const c = document.createElement("canvas");
+  c.width = c.height = 64;
+  const ctx = c.getContext("2d")!,
+    gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gradient.addColorStop(0, "rgba(255,255,255,1)");
+  gradient.addColorStop(0.25, "rgba(255,255,255,.8)");
+  gradient.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 64, 64);
+  return (softParticle = new T.CanvasTexture(c));
+}
 export function mat(color: string, metal = 0, emission = 0) {
   const key = color + metal + emission;
   if (!cache.has(key))
@@ -205,6 +219,7 @@ export class Motes {
     this.object = new T.Points(
       g,
       new T.PointsMaterial({
+        map: particleTexture(),
         color,
         size: 0.075,
         transparent: true,

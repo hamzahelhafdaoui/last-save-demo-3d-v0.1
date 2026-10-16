@@ -588,6 +588,7 @@ export class GameRuntime {
       this.controls.clear();
       this.accumulator = 0;
       this.currentMode = mode;
+      if (mode !== "customize") this.camera.clearViewOffset();
     }
     this.controls.enabled = mode === "play";
     this.controls.sensitivity = s.settings.sensitivity;
@@ -811,6 +812,14 @@ export class GameRuntime {
         this.time,
       );
     } else if (mode === "customize") {
+      this.camera.setViewOffset(
+        innerWidth,
+        innerHeight,
+        innerWidth < 540 ? 0 : innerWidth * 0.12,
+        innerWidth < 540 ? innerHeight * 0.21 : 0,
+        innerWidth,
+        innerHeight,
+      );
       const p = this.world.physics.position;
       this.actor.update(p, { x: 0, y: 0, z: 0 }, true, dt, this.time);
       this.actor.root.rotation.y = 0;
