@@ -4,7 +4,9 @@
 
 Version `0.1.0-dev.2` repairs missed touch endings, clears browser captures/held controls on interruptions and removes disposed control listeners. Joystick/camera fingers remain independent. Leaving combat during a dodge now clears forced movement; title-settings Escape, teleport jump state, stale interaction frames and mobile clean-HUD recovery are also fixed. See [details](INPUT_FIXES.md).
 
-30 Node tests, TypeScript/Vite build, expanded native Chromium touch tests and desktop combat/input recovery passed locally against a frozen production build. Real touch-jump and post-interruption recovery passed. Screenshots reviewed. `tests/mobile.cjs` and `tests/control-recovery.cjs` accept `BASE_URL` for hosted verification. The patch is ready to push and verify on the permanent Vercel alias; do not mistake this local verification for a completed hosted check. Physical devices and Safari remain untested.
+30 Node tests, TypeScript/Vite build, expanded native Chromium touch tests and desktop combat/input recovery passed locally against a frozen production build, then both browser scripts passed against **https://last-save-demo-3d.vercel.app/**. Real touch-jump and post-interruption recovery passed. The hosted city/equipment/inventory → home portal → reload test also passed; all three hosted runs had clean browser error lists. Screenshots reviewed. Physical devices and Safari remain untested.
+
+Gameplay patch `7a738e649e5bd969febbb226b33b002b2cabf705` is pushed to `main`; GitHub Actions passed. Vercel production `dpl_9PhHmpwnQ8y5ZLV3ta1AEMiUJkQX` is READY with that exact SHA and the permanent public alias. Expected gameplay JS: `/assets/index-dyrazcO_.js`. Subsequent documentation-only commits retain those assets. Source checkpoint tag: `v0.1.0-dev.2`. Use the main-branch ZIP or tagged ZIP from GitHub to retrieve the source independently of this workspace.
 
 ## User intent and quality bar
 

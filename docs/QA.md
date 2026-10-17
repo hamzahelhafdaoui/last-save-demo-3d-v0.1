@@ -5,7 +5,8 @@
 - 30 system tests pass, including newly reproduced control lifecycle failures, combat shutdown during a dodge and Rapier teleport/jump-state recovery. TypeScript/Vite production build passes.
 - The production build passed expanded native Chromium touch checks at portrait/landscape sizes: independent move/look, either finger released first, release outside the stick, cancellation, pause while held, old contact remaining canceled after resume, rotation, injected blur, HUD restoration, repeated starts/releases and touch jump. Screenshots inspected; no runtime browser errors.
 - Desktop production-build checks passed switching from Living Quest to Story Tour while a dodge was suspended in pause; the player remains stationary. Keyboard/inventory interruption, fresh movement, graphics changes retaining the active world and save reload passed with no browser errors.
-- See [patch details and reproduction](INPUT_FIXES.md). Physical mobile/Safari testing remains open. Hosted patch verification will be recorded after the push/deploy.
+- The same mobile and desktop regression scripts also passed against **https://last-save-demo-3d.vercel.app/**, followed by the hosted city/equipment/inventory → home portal → reload smoke test, all with clean browser error lists. GitHub Actions passed tests/build for gameplay patch `7a738e649e5bd969febbb226b33b002b2cabf705`; Vercel deployment `dpl_9PhHmpwnQ8y5ZLV3ta1AEMiUJkQX` is READY for that SHA and the public alias served the expected `/assets/index-dyrazcO_.js` build. Later documentation-only commits preserve those gameplay assets.
+- See [patch details and reproduction](INPUT_FIXES.md). Physical mobile/Safari testing remains open. The regression runs use saved checkpoints and do not replace a continuous fresh-save story playthrough.
 
 ## Completed evidence
 
