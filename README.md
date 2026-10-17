@@ -45,6 +45,8 @@ See [walkthrough and controls](docs/INVESTOR_WALKTHROUGH.md).
 
 WASD/arrows move; Shift sprints; Ctrl walks slowly; Space jumps; drag orbits the camera; wheel zooms; E interacts; I opens inventory; J opens journal; Escape opens the menu; H toggles HUD. Living Quest: F strikes, Q dodges. Touch uses an actual independent left analog joystick and right camera drag, plus jump/action controls.
 
+Lift the movement thumb to stop; the camera finger operates independently. Opening a menu, backgrounding the page or rotating the device releases held controls; touch the joystick again to move. In clean HUD mode, tap **Show controls** to restore the touch interface.
+
 Menu → Investor Demo Mode includes opening replay, earned sword-cinematic replay, clean HUD mode, fresh-demo reset, entrance recovery and progress export.
 
 ## Architecture
@@ -78,6 +80,8 @@ Save key: `last-save.investor.v2`. Missing, invalid or wrong-version data starts
 BASE_URL=http://localhost:4173/ CHROMIUM_PATH=/usr/bin/chromium npm run test:browser
 BASE_URL=http://localhost:4173/ node tests/cinematic.cjs
 BASE_URL=http://localhost:4173/ node tests/crossing.cjs
+BASE_URL=http://localhost:4173/ node tests/mobile.cjs
+BASE_URL=http://localhost:4173/ node tests/control-recovery.cjs
 ```
 
 Use a stable production build/server, not Vite HMR, during long tests. Browser tests use real movement/interaction controls plus explicitly documented saved checkpoints between isolated sections. They do not constitute a continuous human playthrough or physical-device performance certification. `?debug` exposes **read-only** diagnostics; no reward/teleport mutation shortcuts are shipped.

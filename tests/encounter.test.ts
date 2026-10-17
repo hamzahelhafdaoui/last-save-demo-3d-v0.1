@@ -63,3 +63,18 @@ test("herbalist keepsake survives repeat delivery and save validation", () => {
   assert.equal(s.inventory.filter((i) => i === "moonfern-lantern").length, 1);
   assert.equal(s.sideQuest.delivered, true);
 });
+test("leaving combat during a dodge clears forced movement and combat cooldowns", () => {
+  const c = new Encounter(new T.Scene(), { cue: () => {} } as any);
+  c.ready = true;
+  c.active = true;
+  c.enemies = [enemy(0, 1.5)];
+  c.roll();
+  c.strike(new T.Vector3(), 0);
+  assert(c.dodge > 0);
+  c.stop();
+  assert.equal(c.dodge, 0);
+  assert.equal(c.attack, 0);
+  assert.equal(c.dodgeCooldown, 0);
+  assert.equal(c.attackCooldown, 0);
+  assert.equal(c.active, false);
+});

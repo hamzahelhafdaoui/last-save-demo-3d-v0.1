@@ -1,5 +1,12 @@
 # Verification — development checkpoint, 2026-10-16
 
+## Input recovery patch, 2026-10-17
+
+- 30 system tests pass, including newly reproduced control lifecycle failures, combat shutdown during a dodge and Rapier teleport/jump-state recovery. TypeScript/Vite production build passes.
+- The production build passed expanded native Chromium touch checks at portrait/landscape sizes: independent move/look, either finger released first, release outside the stick, cancellation, pause while held, old contact remaining canceled after resume, rotation, injected blur, HUD restoration, repeated starts/releases and touch jump. Screenshots inspected; no runtime browser errors.
+- Desktop production-build checks passed switching from Living Quest to Story Tour while a dodge was suspended in pause; the player remains stationary. Keyboard/inventory interruption, fresh movement, graphics changes retaining the active world and save reload passed with no browser errors.
+- See [patch details and reproduction](INPUT_FIXES.md). Physical mobile/Safari testing remains open. Hosted patch verification will be recorded after the push/deploy.
+
 ## Completed evidence
 
 - 19 Node tests pass: radial analog controls and bounded camera-relative movement; Rapier ground/collision/jump/camera raycast, camera-only portal blockers and bridge-safe restoration; save validation and round-trip persistence; quest gates and unique rewards; authored extraction phases; melee facing/range/cooldowns, enemy wind-up/dodge damage avoidance; unique healer reward.

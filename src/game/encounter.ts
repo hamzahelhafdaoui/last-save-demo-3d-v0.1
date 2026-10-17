@@ -24,16 +24,17 @@ export class Encounter {
   dodgeCooldown = 0;
   ready = false;
   private loading = false;
-  private deathTime = 0;
+  private disposed = false;
   constructor(
     private scene: T.Scene,
     private audio: AudioSystem,
   ) {}
   async prepare() {
-    if (this.ready || this.loading) return;
+    if (this.disposed || this.ready || this.loading) return;
     this.loading = true;
     for (let i = 0; i < 3; i++) {
       const actor = await Traveler.load();
+      if (this.disposed) return;
       actor.root.visible = false;
       actor.appearance(
         {
@@ -74,6 +75,7 @@ export class Encounter {
   }
   start() {
     if (!this.ready) return;
+    this.stop();
     this.active = true;
     this.health = 100;
     for (const e of this.enemies) {
@@ -179,9 +181,7 @@ export class Encounter {
         e.actor.root.scale.setScalar(1.02 + Math.sin(e.flash * 30) * 0.03);
     }
     if (this.health <= 0) {
-      this.active = false;
-      useGame.setState({ enemyCount: 0 });
-      this.enemies.forEach((e) => (e.actor.root.visible = false));
+      this.stop();
       ui().notify(
         "A narrow escape. The moonfern is safe. Try again when you’re ready.",
         "ENCOUNTER LOST · RETURNED TO THE TRAIL",
@@ -189,9 +189,7 @@ export class Encounter {
       return "lost";
     }
     if (p.distanceTo(new T.Vector3(-13, p.y, 13)) > 27) {
-      this.active = false;
-      useGame.setState({ enemyCount: 0 });
-      this.enemies.forEach((e) => (e.actor.root.visible = false));
+      this.stop();
       ui().notify(
         "You slipped away through the trees.",
         "THE WARDENS REMAIN IN THE GROVE",
@@ -200,11 +198,19 @@ export class Encounter {
   }
   stop() {
     this.active = false;
-    this.enemies.forEach((e) => (e.actor.root.visible = false));
+    this.dodge = this.attack = this.attackCooldown = this.dodgeCooldown = 0;
+    this.enemies.forEach((e) => {
+      e.actor.root.visible = false;
+      e.telegraph.visible = false;
+      e.wind = e.flash = 0;
+      e.hit = false;
+      e.actor.root.scale.setScalar(1.02);
+    });
     useGame.setState({ enemyCount: 0 });
   }
   dispose() {
-    this.active = false;
+    this.disposed = true;
+    this.stop();
     for (const e of this.enemies) {
       e.actor.root.removeFromParent();
       e.actor.visual.traverse((o) => {

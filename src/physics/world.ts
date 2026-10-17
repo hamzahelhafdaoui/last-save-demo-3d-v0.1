@@ -143,6 +143,8 @@ export class Physics {
     this.body.setTranslation({ x, y: surface + 1.1, z }, true);
     this.body.setNextKinematicTranslation(this.body.translation());
     this.velocity = { x: 0, y: 0, z: 0 };
+    this.grounded = false;
+    this.coyote = this.jumpBuffer = 0;
   }
   cameraDistance(
     origin: { x: number; y: number; z: number },

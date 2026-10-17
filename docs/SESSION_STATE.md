@@ -1,4 +1,10 @@
-# LAST SAVE handoff — 2026-10-16
+# LAST SAVE handoff — 2026-10-17
+
+## Latest patch: stuck joystick/input recovery
+
+Version `0.1.0-dev.2` repairs missed touch endings, clears browser captures/held controls on interruptions and removes disposed control listeners. Joystick/camera fingers remain independent. Leaving combat during a dodge now clears forced movement; title-settings Escape, teleport jump state, stale interaction frames and mobile clean-HUD recovery are also fixed. See [details](INPUT_FIXES.md).
+
+30 Node tests, TypeScript/Vite build, expanded native Chromium touch tests and desktop combat/input recovery passed locally against a frozen production build. Real touch-jump and post-interruption recovery passed. Screenshots reviewed. `tests/mobile.cjs` and `tests/control-recovery.cjs` accept `BASE_URL` for hosted verification. The patch is ready to push and verify on the permanent Vercel alias; do not mistake this local verification for a completed hosted check. Physical devices and Safari remain untested.
 
 ## User intent and quality bar
 

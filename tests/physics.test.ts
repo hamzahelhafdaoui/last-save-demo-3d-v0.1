@@ -74,3 +74,23 @@ test("position restore lands on a bridge surface rather than in the river undern
   assert.ok(p.position.y > 2.4 && p.position.y < 2.7);
   p.dispose();
 });
+test("teleport clears queued jumps, stale ground contact and movement velocity", () => {
+  const p = new Physics(() => 0);
+  settle(p);
+  p.jumpBuffer = 0.14;
+  p.coyote = 0.12;
+  p.velocity = { x: 6, y: 7, z: -6 };
+  p.teleport(0, 0);
+  assert.equal(p.grounded, false);
+  assert.equal(p.coyote, 0);
+  assert.equal(p.jumpBuffer, 0);
+  assert.deepEqual(p.velocity, { x: 0, y: 0, z: 0 });
+  p.step(0, 0, 0, false, 1 / 60);
+  assert(
+    p.velocity.y <= 0,
+    "a jump from the old location must not fire after arrival",
+  );
+  settle(p);
+  assert(p.grounded);
+  p.dispose();
+});

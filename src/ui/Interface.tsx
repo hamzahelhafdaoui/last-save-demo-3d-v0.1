@@ -724,6 +724,14 @@ export function Interface() {
           </div>
         )}
       </div>
+      {mode === "play" && !g.hud && (
+        <button
+          className="restore-controls"
+          onClick={() => useGame.setState({ hud: true })}
+        >
+          Show controls
+        </button>
+      )}
       <div
         className={
           "touch-controls " + (mode === "play" && g.hud ? "active" : "")

@@ -45,6 +45,7 @@ export class GameRuntime {
   private loading = false;
   private justResumed = false;
   private pausedFrom: Mode = "play";
+  private unsubscribe: (() => void) | null = null;
   constructor(
     private scene: T.Scene,
     private camera: T.PerspectiveCamera,
@@ -52,6 +53,7 @@ export class GameRuntime {
   ) {}
   async init() {
     await RAPIER.init();
+    if (this.disposed) return;
     // Warm the small factory modules, not world scenes/assets. Existing sessions
     // can finish their journey even after main receives a newer deployment.
     await Promise.all([
@@ -59,8 +61,30 @@ export class GameRuntime {
       import("../worlds/lumen"),
       import("../worlds/city"),
     ]);
+    if (this.disposed) return;
     this.actor = await Traveler.load();
+    if (this.disposed) return;
     this.controls = new Controls(this.renderer.domElement);
+    // Store changes can hide the controls between animation frames. Release
+    // ownership synchronously so those fingers/keys cannot resume on their own.
+    this.unsubscribe = useGame.subscribe((state, previous) => {
+      if (state.mode !== previous.mode || state.hud !== previous.hud) {
+        this.controls.enabled = state.mode === "play";
+        this.controls.clear();
+        this.accumulator = 0;
+        if (this.world) {
+          this.world.physics.velocity.x = this.world.physics.velocity.z = 0;
+          this.world.physics.jumpBuffer = 0;
+        }
+      }
+      if (
+        state.save.experience !== previous.save.experience &&
+        state.save.experience !== "quest"
+      ) {
+        this.encounter?.stop();
+        this.actor.root.rotation.x = 0;
+      }
+    });
     this.beacon = ring(this.scene, 0, 0, 0, 0.5, 0.025, "#f0d9a7");
     this.beacon.rotation.x = Math.PI / 2;
     await this.load("home", true);
@@ -78,12 +102,17 @@ export class GameRuntime {
     window.addEventListener(
       "keydown",
       (e) => {
-        if ((e.target as HTMLElement).matches("input,select,textarea")) return;
+        if (
+          e.repeat ||
+          (e.target as HTMLElement).matches(
+            "input,select,textarea,[contenteditable=true]",
+          )
+        )
+          return;
         if (e.key === "Escape") {
           if (ui().mode === "play") this.setMode("pause");
-          else if (
-            ["pause", "inventory", "journal", "dialogue"].includes(ui().mode)
-          )
+          else if (ui().mode === "pause") void this.command("resume");
+          else if (["inventory", "journal", "dialogue"].includes(ui().mode))
             this.setMode("play");
         }
         if (ui().mode === "play") {
@@ -180,6 +209,7 @@ export class GameRuntime {
   private setMode(m: Mode) {
     if (m === "pause") this.pausedFrom = ui().mode;
     this.controls?.clear();
+    if (this.controls) this.controls.enabled = m === "play";
     ui().setMode(m);
     this.accumulator = 0;
     if (m === "play") this.renderer.domElement.focus();
@@ -603,7 +633,6 @@ export class GameRuntime {
       s = state.save,
       mode = state.mode;
     if (this.currentMode !== mode) {
-      this.controls.clear();
       this.accumulator = 0;
       this.currentMode = mode;
       if (mode !== "customize") this.camera.clearViewOffset();
@@ -632,6 +661,14 @@ export class GameRuntime {
       s.equipment.sword && mode !== "cinematic" && mode !== "reveal",
     );
     if (mode === "play") {
+      if (
+        this.encounter &&
+        s.experience !== "quest" &&
+        (this.encounter.active ||
+          this.encounter.dodge > 0 ||
+          this.encounter.attack > 0)
+      )
+        this.encounter.stop();
       const m = this.controls.movement();
       let d = cameraRelative(m.x, m.y, this.follow.yaw);
       if (this.encounter && this.encounter.dodge > 0) d = this.rollDirection;
@@ -707,6 +744,9 @@ export class GameRuntime {
       if (this.controls.consumeInteract() && this.hot) {
         this.audio.cue("interact");
         this.action(this.hot.id);
+        // Dialogue, a portal or a cinematic has taken control. Do not process
+        // another combat hit/challenge tick using this stale gameplay frame.
+        if (ui().mode !== "play") return;
       }
       if (this.world.id === "lumen" && s.quest.mechanism && s.quest.steps < 3) {
         const steps = [
@@ -747,8 +787,7 @@ export class GameRuntime {
         dt,
         this.time,
       );
-      if (this.encounter && s.experience !== "quest" && this.encounter.active)
-        this.encounter.stop();
+      this.actor.root.rotation.x = 0;
       if (this.encounter && s.experience === "quest") {
         void this.encounter.prepare();
         if (
@@ -803,8 +842,11 @@ export class GameRuntime {
             "CROSSING LOST · MEMORIES KEPT",
           );
         }
-      } else if (ui().challengeRemaining)
-        useGame.setState({ challengeRemaining: 0 });
+      } else {
+        this.challengeTimer = 0;
+        if (ui().challengeRemaining)
+          useGame.setState({ challengeRemaining: 0 });
+      }
       this.saveTimer += dt;
       if (this.saveTimer > 4) {
         this.remember();
@@ -1024,6 +1066,8 @@ export class GameRuntime {
   }
   dispose() {
     this.disposed = true;
+    this.unsubscribe?.();
+    this.controls?.dispose();
     this.listeners.abort();
     this.extraction?.dispose();
     this.encounter?.dispose();
