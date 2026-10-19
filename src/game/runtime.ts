@@ -777,9 +777,9 @@ export class GameRuntime {
             : 0;
       const region =
         this.world.id === "home"
-          ? "The Courtyard"
+          ? regions.home.name
           : this.world.id === "city"
-            ? "Targa Oasis"
+            ? regions.city.name
             : p.x > 22 && p.z < -23
               ? "The Dawn Terrace"
               : p.z < -24

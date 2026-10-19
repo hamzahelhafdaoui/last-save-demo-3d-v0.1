@@ -698,13 +698,7 @@ export function Interface() {
         <div className="world-name">
           <span className="crest">✧</span>
           <div>
-            <span className="eyebrow">
-              {s.world === "lumen"
-                ? "TIZI HIGHLANDS"
-                : s.world === "city"
-                  ? "ANOTHER WORLD. THE SAME YOU."
-                  : "YOUR PERMANENT SANCTUARY"}
-            </span>
+            <span className="eyebrow">{regions[s.world].subtitle}</span>
             <h2>{g.region}</h2>
           </div>
         </div>

@@ -31,18 +31,20 @@ const fs = require("node:fs");
       if (m.type() === "error" && !m.text().includes("favicon"))
         errors.push(m.text());
     });
-    await p.goto(base);
-    await p.evaluate(() =>
-      localStorage.setItem(
-        "last-save.aman.v1",
-        JSON.stringify({
-          version: 2,
-          created: true,
-          world: "home",
-          settings: { quality: "low", volume: 0 },
-        }),
-      ),
-    );
+    await p.addInitScript(() => {
+      if (!sessionStorage.getItem("aman-touch-seeded")) {
+        localStorage.setItem(
+          "last-save.aman.v1",
+          JSON.stringify({
+            version: 2,
+            created: true,
+            world: "home",
+            settings: { quality: "low", volume: 0 },
+          }),
+        );
+        sessionStorage.setItem("aman-touch-seeded", "yes");
+      }
+    });
     await p.goto(base + "?debug");
     await p
       .getByRole("button", { name: "Controls & comfort" })

@@ -31,10 +31,10 @@ export function random(seed: number) {
 }
 export function regionAt(x: number, z: number) {
   return x > 21 && z < -21
-    ? "Bellweather Rise"
+    ? "The Dawn Terrace"
     : z < -24
-      ? "Hearthmere Village"
+      ? "Tizi Village"
       : Math.abs(z - riverZ(x)) < 12
-        ? "The Silverbrook"
-        : "Elderwood Trail";
+        ? "The Highland Watercourse"
+        : "The Cedar Trail";
 }

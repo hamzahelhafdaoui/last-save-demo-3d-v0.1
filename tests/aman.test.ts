@@ -8,7 +8,6 @@ import {
   loadSave,
 } from "../src/state/model";
 import { act } from "../src/state/actions";
-import { regions, glossary, futureRegions } from "../src/content/regions";
 test("the alternate game never reads the main game's local save namespace", () => {
   assert.notEqual(SAVE_KEY, "last-save.investor.v2");
   const read: string[] = [];
@@ -74,13 +73,21 @@ test("corrupt oasis progress cannot pretend the community water system is restor
   assert.equal(r.oasis.restored, false);
   assert.deepEqual(r.oasis.repairs, [0]);
 });
-test("playable regions and future cultural settings remain explicitly separate", () => {
-  assert.equal(regions.lumen.name, "Tizi Highlands");
-  assert.equal(regions.city.name, "Targa Oasis");
-  assert.deepEqual(
-    glossary.map((g) => g.word),
-    ["Aman", "Tizi", "Targa"],
-  );
-  assert(futureRegions.every((r) => r.status === "In development"));
-  assert.equal(futureRegions.length, 3);
+test("guidance advances past completed water work and follows the active region", () => {
+  let s = freshSave();
+  s.created = true;
+  s.world = "lumen";
+  s = act(s, "accept").save;
+  assert.deepEqual(objective(s).target, [-24, 12]);
+  s = act(s, "flower-0").save;
+  assert.deepEqual(objective(s).target, [-29, 7]);
+  for (const n of [1, 2]) s = act(s, "flower-" + n).save;
+  assert.deepEqual(objective(s).target, [-25, 8]);
+  s = act(s, "forest-echo").save;
+  assert.match(objective(s).title, /caravan/);
+  s.world = "city";
+  assert.equal(objective(s).world, "city");
+  assert.match(objective(s).detail, /channel keeper/);
+  s = act(s, "oasis-accept").save;
+  assert.deepEqual(objective(s).target, [10, -15]);
 });

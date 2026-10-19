@@ -375,7 +375,8 @@ export async function createWorld(): Promise<World> {
   });
   const pads: T.Group[] = [],
     helpers: T.Group[] = [],
-    colliders: ReturnType<Physics["box"]>[] = [];
+    colliders: ReturnType<Physics["box"]>[] = [],
+    padColliders: ReturnType<Physics["box"]>[] = [];
   for (let i = 0; i < 3; i++) {
     const [x, z] = STEPS[i],
       g = new T.Group();
@@ -384,7 +385,7 @@ export async function createWorld(): Promise<World> {
     slab(g, 0, 0, 0, 2.7, 0.55, 2.7, "#b8ac8c", "stone");
     rug(g, 0, 0.29, 0, 1.5, 1.5, "#8a6650");
     text(g, String(i + 1), 0, 0.32, 0.02, 1.2).rotation.x = -Math.PI / 2;
-    physics.box(x, STEP_Y - 0.3, z, 1.25, 0.275, 1.25);
+    padColliders.push(physics.box(x, STEP_Y - 0.3, z, 1.25, 0.275, 1.25));
     pads.push(g);
     const prev = i ? STEPS[i - 1] : [-25, -27],
       mx = (x + prev[0]) / 2,
@@ -395,24 +396,31 @@ export async function createWorld(): Promise<World> {
     helpers.push(helper);
     colliders.push(physics.box(mx, STEP_Y - 0.32, mz, 1.7, 0.15, 1.7));
   }
-  // A walkable approach to the raised passage, shared by every difficulty.
-  // Story Tour's connecting decks do not help if the first deck is unreachable.
-  const ra = new T.Vector3(-25, ground(-25, -26) + 0.06, -26),
-    rb = new T.Vector3(-27, STEP_Y - 0.17, -29);
-  const dr = rb.clone().sub(ra),
-    pr = new T.Vector3(-dr.z, 0, dr.x).normalize().multiplyScalar(1.15);
-  const rv = [
-    ra.clone().add(pr),
-    ra.clone().sub(pr),
-    rb.clone().add(pr),
-    rb.clone().sub(pr),
-  ].flatMap((v) => [v.x, v.y, v.z]);
-  const rg = new T.BufferGeometry();
-  rg.setAttribute("position", new T.Float32BufferAttribute(rv, 3));
-  rg.setIndex([0, 2, 1, 1, 2, 3]);
-  rg.computeVertexNormals();
-  mesh(scene, rg, surface("#b6a382", "stone"));
-  physics.surface(rv, [0, 2, 1, 1, 2, 3]);
+  // Climb before the first helper's vertical face. The first helper box is
+  // intentionally disabled: a continuous ramp + level deck replaces it.
+  const approach = [
+    new T.Vector3(-24, ground(-24, -26) + 0.04, -26),
+    new T.Vector3(-27, STEP_Y - 0.025, -28),
+    new T.Vector3(-29, STEP_Y - 0.025, -31),
+  ];
+  for (let i = 0; i < 2; i++) {
+    const a = approach[i],
+      b = approach[i + 1],
+      d = b.clone().sub(a),
+      n = new T.Vector3(-d.z, 0, d.x).normalize().multiplyScalar(1.25);
+    const vertices = [
+      a.clone().add(n),
+      a.clone().sub(n),
+      b.clone().add(n),
+      b.clone().sub(n),
+    ].flatMap((v) => [v.x, v.y, v.z]);
+    const g = new T.BufferGeometry();
+    g.setAttribute("position", new T.Float32BufferAttribute(vertices, 3));
+    g.setIndex([0, 2, 1, 1, 2, 3]);
+    g.computeVertexNormals();
+    mesh(scene, g, surface("#b6a382", "stone"));
+    physics.surface(vertices, [0, 2, 1, 1, 2, 3]);
+  }
   hot.push({
     id: "crossing-echo",
     position: new T.Vector3(-40, ground(-40, -40), -40),
@@ -487,29 +495,35 @@ export async function createWorld(): Promise<World> {
     box(scene, x, base.y + 4.1, z, 1.3, 0.3, 1.3, "#c9bd9c");
     physics.box(x, base.y + 2, z, 0.35, 2, 0.35);
   }
-  const terraceRamp = [
-    31.5,
-    ground(33, -30) + 0.06,
-    -30,
-    34.5,
-    ground(33, -30) + 0.06,
-    -30,
-    31.5,
-    base.y + 0.03,
-    -34,
-    34.5,
-    base.y + 0.03,
-    -34,
+  const terracePoints = [
+    new T.Vector3(33, ground(33, -29) + 0.04, -29),
+    new T.Vector3(33, base.y + 0.03, -32.2),
+    new T.Vector3(33, base.y + 0.03, -34),
   ];
-  const terraceGeometry = new T.BufferGeometry();
-  terraceGeometry.setAttribute(
-    "position",
-    new T.Float32BufferAttribute(terraceRamp, 3),
-  );
-  terraceGeometry.setIndex([0, 1, 2, 1, 3, 2]);
-  terraceGeometry.computeVertexNormals();
-  mesh(scene, terraceGeometry, surface("#b8aa88", "stone"));
-  physics.surface(terraceRamp, [0, 1, 2, 1, 3, 2]);
+  for (let i = 0; i < 2; i++) {
+    const a = terracePoints[i],
+      b = terracePoints[i + 1],
+      vertices = [
+        a.x - 1.8,
+        a.y,
+        a.z,
+        a.x + 1.8,
+        a.y,
+        a.z,
+        b.x - 1.8,
+        b.y,
+        b.z,
+        b.x + 1.8,
+        b.y,
+        b.z,
+      ];
+    const g = new T.BufferGeometry();
+    g.setAttribute("position", new T.Float32BufferAttribute(vertices, 3));
+    g.setIndex([0, 1, 2, 1, 3, 2]);
+    g.computeVertexNormals();
+    mesh(scene, g, surface("#b8aa88", "stone"));
+    physics.surface(vertices, [0, 1, 2, 1, 3, 2]);
+  }
   const pedestal = base.clone();
   cyl(scene, base.x, base.y + 0.45, base.z, 0.86, 0.9, "#968e78", 1.1, 9);
   const sword = makeSword();
@@ -626,12 +640,16 @@ export async function createWorld(): Promise<World> {
       spring.water.visible = s.quest.flowers.length === 3;
       wheel.rotation.z = s.quest.mechanism ? Math.sin(t * 0.3) * 0.03 : 0;
       for (let i = 0; i < helpers.length; i++) {
-        helpers[i].visible = s.experience === "tour";
-        colliders[i].setEnabled(s.experience === "tour");
+        helpers[i].visible =
+          i > 0 && s.experience === "tour" && s.quest.mechanism;
+        colliders[i].setEnabled(
+          i > 0 && s.experience === "tour" && s.quest.mechanism,
+        );
       }
-      pads.forEach(
-        (p, i) => (p.visible = s.quest.mechanism || s.quest.steps > i),
-      );
+      pads.forEach((p, i) => {
+        p.visible = s.quest.mechanism;
+        padColliders[i].setEnabled(s.quest.mechanism);
+      });
       sword.visible = !s.quest.sword;
       guardian.visible = s.quest.echoes.length === 3 && !s.quest.sword;
       guardianRing.rotation.z = t * 0.18;
