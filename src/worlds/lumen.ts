@@ -232,7 +232,7 @@ export async function createWorld(): Promise<World> {
     [14, -33, 6, 6],
     [-9, -42, 7, 5],
     [6, -46, 5, 7],
-    [18, -45, 6, 4.8],
+    [24, -51, 6, 4.8],
   ])
     dwelling(scene, physics, x, ground(x, z), z, w, 5, h);
   for (let i = 0; i < 4; i++) {
@@ -487,6 +487,29 @@ export async function createWorld(): Promise<World> {
     box(scene, x, base.y + 4.1, z, 1.3, 0.3, 1.3, "#c9bd9c");
     physics.box(x, base.y + 2, z, 0.35, 2, 0.35);
   }
+  const terraceRamp = [
+    31.5,
+    ground(33, -30) + 0.06,
+    -30,
+    34.5,
+    ground(33, -30) + 0.06,
+    -30,
+    31.5,
+    base.y + 0.03,
+    -34,
+    34.5,
+    base.y + 0.03,
+    -34,
+  ];
+  const terraceGeometry = new T.BufferGeometry();
+  terraceGeometry.setAttribute(
+    "position",
+    new T.Float32BufferAttribute(terraceRamp, 3),
+  );
+  terraceGeometry.setIndex([0, 1, 2, 1, 3, 2]);
+  terraceGeometry.computeVertexNormals();
+  mesh(scene, terraceGeometry, surface("#b8aa88", "stone"));
+  physics.surface(terraceRamp, [0, 1, 2, 1, 3, 2]);
   const pedestal = base.clone();
   cyl(scene, base.x, base.y + 0.45, base.z, 0.86, 0.9, "#968e78", 1.1, 9);
   const sword = makeSword();
