@@ -35,6 +35,17 @@ const base = process.env.BASE_URL || "http://localhost:4184/";
       held.clear();
       p = await b.newPage({ viewport: { width: 720, height: 450 } });
       p.setDefaultTimeout(90000);
+      p.on("response", (response) => {
+        if (response.status() >= 400)
+          console.log("HTTP ERROR", response.status(), response.url());
+      });
+      p.on("requestfailed", (request) =>
+        console.log(
+          "REQUEST FAILED",
+          request.url(),
+          request.failure()?.errorText,
+        ),
+      );
       p.on("pageerror", (e) => {
         errors.push(e.message);
         console.log("ERROR", e.message);

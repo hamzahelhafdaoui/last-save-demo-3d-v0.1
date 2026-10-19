@@ -18,7 +18,12 @@ The browser tests use explicitly seeded checkpoints between distant sections. Th
 
 ## Hosted and touch verification
 
-Pending at this source checkpoint. Record results only after the actual public build has been tested.
+- Separate Vercel project `last-save-aman` is READY at https://last-save-aman.vercel.app/ . Gameplay commit `6745d207b035b80986318d50ed70942a75f6215c` deployed as `dpl_3Fkz1XWt1s3LiBYbeod3T21EzTyY`, with expected gameplay entry `/assets/index-drMIUSBG.js`. GitHub Actions passed tests/build on that SHA.
+- Expanded Chromium touch checks passed on the actual public URL: title settings/Escape, independent joystick/camera, either finger released first, release outside the joystick, cancellation, pause/resume with held contacts, orientation/resize, injected focus loss, HUD restoration, repeated input and touch jump. Error list was clean on the completed run. Physical devices remain untested.
+- The first hosted mobile startup timed out before reaching the title; a diagnostic load then reached the title, and the complete rerun passed. This initial failure was not reproduced or attributed to a specific root cause.
+- The first hosted Atlas→oasis→home run completed all gameplay, equipment, display and reload assertions, but the strict console assertion caught one HTTP 503 resource error. The complete second run with resource-URL diagnostics passed all gameplay/display/reload and main-save-isolation assertions with a clean console and no HTTP/request errors. The earlier 503 was not reproduced; no speculative root cause is claimed. The first run is not represented as console-clean.
+- Main's remote branch remains `c193b5d36e360522a804fe0130ff7be3ed0a03f3`. The main public HTML before/after the experiment compared byte-for-byte identical. No experiment was merged or deployed into the original project.
+- Representative renders are in `docs/aman/screenshots/`; they show the actual development game at low graphics settings, not concept art.
 
 ## Remaining limits
 

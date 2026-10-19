@@ -26,10 +26,15 @@ const fs = require("node:fs");
     });
     p.setDefaultTimeout(90000);
     const errors = [];
-    p.on("pageerror", (e) => errors.push(e.message));
+    p.on("pageerror", (e) => {
+      errors.push(e.message);
+      console.log("PAGE ERROR", e.message);
+    });
     p.on("console", (m) => {
-      if (m.type() === "error" && !m.text().includes("favicon"))
+      if (m.type() === "error" && !m.text().includes("favicon")) {
         errors.push(m.text());
+        console.log("CONSOLE ERROR", m.text());
+      }
     });
     await p.addInitScript(() => {
       if (!sessionStorage.getItem("aman-touch-seeded")) {
@@ -46,6 +51,20 @@ const fs = require("node:fs");
       }
     });
     await p.goto(base + "?debug");
+    await p
+      .getByRole("button", { name: "Controls & comfort" })
+      .waitFor({ timeout: 45000 })
+      .catch(async (error) => {
+        console.error(
+          "BOOT STATE",
+          await p.evaluate(() => ({
+            text: document.body.innerText,
+            debug: window.lastSaveDebug?.(),
+          })),
+        );
+        await p.screenshot({ path: "test-results/mobile-boot-failure.png" });
+        throw error;
+      });
     await p
       .getByRole("button", { name: "Controls & comfort" })
       .click({ force: true });
