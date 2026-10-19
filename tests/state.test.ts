@@ -44,6 +44,8 @@ test("each adventure gate is real and rewards are unique", () => {
   s = act(s, "memory-1").save;
   assert.equal(s.quest.memory, 0);
   for (let n = 0; n < 3; n++) s = act(s, "memory-" + n).save;
+  assert.equal(s.quest.echoes.length, 2);
+  s = act(s, "granary-witnessed").save;
   assert.equal(s.quest.echoes.length, 3);
   s = act(s, "guardian-1").save;
   assert.equal(s.quest.guardian, 0);
@@ -62,6 +64,8 @@ test("identity, equipment and home decorations survive a real JSON round trip", 
   s = grantSword(s);
   s.world = "city";
   s.positions.city = { x: 3, z: -5 };
+  s = act(s, "oasis-accept").save;
+  for (const n of [0, 1, 2]) s = act(s, "oasis-repair-" + n).save;
   s = act(s, "jacket").save;
   s.world = "home";
   s = act(s, "display").save;
@@ -72,7 +76,7 @@ test("identity, equipment and home decorations survive a real JSON round trip", 
   assert.equal(restored.home.sword, true);
   assert.equal(restored.equipment.sword, false);
   assert.equal(restored.equipment.jacket, true);
-  assert.equal(restored.inventory.length, 5);
+  assert.equal(restored.inventory.length, 6);
 });
 test("interrupted extraction saves retain the pre-claim checkpoint", () => {
   let s = freshSave();
@@ -83,9 +87,9 @@ test("interrupted extraction saves retain the pre-claim checkpoint", () => {
   const restored = validateSave(JSON.parse(JSON.stringify(s)));
   assert.equal(restored.quest.sword, false);
   assert(!restored.inventory.includes("dawnwake"));
-  assert.match(objective(restored).detail, /Enter/);
+  assert.match(objective(restored).detail, /Take/);
   restored.world = "lumen";
-  assert.match(objective(restored).detail, /Claim/);
+  assert.match(objective(restored).detail, /claim/);
 });
 test("inconsistent older saves repair ownership and cannot equip missing items", () => {
   let s = freshSave();

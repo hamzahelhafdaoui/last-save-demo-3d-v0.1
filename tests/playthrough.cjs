@@ -47,7 +47,7 @@ function fresh() {
     async function boot(save) {
       await page.goto(BASE);
       await page.evaluate(
-        (s) => localStorage.setItem("last-save.investor.v2", JSON.stringify(s)),
+        (s) => localStorage.setItem("last-save.aman.v1", JSON.stringify(s)),
         save,
       );
       await page.goto(BASE + (BASE.includes("?") ? "&" : "?") + "debug");
@@ -140,7 +140,7 @@ function fresh() {
     console.log("PASS actual home portal, bridge crossing and Edda");
     // A saved checkpoint isolates forest interactions from the long return journey.
     let save = await page.evaluate(() =>
-      JSON.parse(localStorage.getItem("last-save.investor.v2")),
+      JSON.parse(localStorage.getItem("last-save.aman.v1")),
     );
     save.world = "lumen";
     save.positions.lumen = { x: -24, z: 13 };
@@ -161,7 +161,7 @@ function fresh() {
     assert.deepEqual((await debug()).quest.echoes, ["forest"]);
     console.log("PASS moonflowers and physical echo reward");
     save = await page.evaluate(() =>
-      JSON.parse(localStorage.getItem("last-save.investor.v2")),
+      JSON.parse(localStorage.getItem("last-save.aman.v1")),
     );
     save.world = "lumen";
     save.positions.lumen = { x: -24, z: -26 };
@@ -183,7 +183,7 @@ function fresh() {
     assert.equal((await debug()).quest.echoes.length, 3);
     console.log("PASS archive reconstruction");
     save = await page.evaluate(() =>
-      JSON.parse(localStorage.getItem("last-save.investor.v2")),
+      JSON.parse(localStorage.getItem("last-save.aman.v1")),
     );
     save.positions.lumen = { x: 33, z: -24 };
     await boot(save);
@@ -256,7 +256,7 @@ function fresh() {
     assert.equal(end.equipment.jacket, true);
     assert.equal(end.inventory.filter((i) => i === "dawnwake").length, 1);
     const stored = await page.evaluate(() =>
-      JSON.parse(localStorage.getItem("last-save.investor.v2")),
+      JSON.parse(localStorage.getItem("last-save.aman.v1")),
     );
     assert.equal(stored.home.sword, true);
     await page.screenshot({ path: "test-results/home-complete.png" });

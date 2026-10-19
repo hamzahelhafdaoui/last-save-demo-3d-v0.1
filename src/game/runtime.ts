@@ -1,5 +1,6 @@
 import * as T from "three";
 import RAPIER from "@dimforge/rapier3d-compat";
+import { regions } from "../content/regions";
 import { Controls } from "../input/controls";
 import { cameraRelative } from "../input/math.js";
 import { FollowCamera } from "../render/camera";
@@ -203,6 +204,9 @@ export class GameRuntime {
               z: h.position.z,
             })),
           stick: { ...this.controls.move },
+          oasis: ui().save.oasis,
+          granaryDecision: ui().save.granaryDecision,
+          waterRestored: Boolean(this.world.scene.userData.waterRestored),
         }),
       });
   }
@@ -232,10 +236,10 @@ export class GameRuntime {
       mode: "transition",
       loading:
         id === "lumen"
-          ? "Following the light to Lumenreach…"
+          ? "Following the cedar road to Tizi Highlands…"
           : id === "city"
-            ? "Opening the door to Velvet City…"
-            : "Finding your way home…",
+            ? "Following the water to Targa Oasis…"
+            : "Returning to your courtyard…",
     });
     try {
       let next: World;
@@ -287,7 +291,7 @@ export class GameRuntime {
       if (!initial && id === "lumen" && !ui().save.quest.accepted)
         this.startCinematic("arrival");
       if (!initial && id === "city")
-        ui().notify("Same you. Entirely new world.", "VELVET CITY");
+        ui().notify("Same you. Entirely new world.", "TARGA OASIS");
     } catch (e) {
       console.error(e);
       useGame.setState({
@@ -305,8 +309,11 @@ export class GameRuntime {
     lines: string[],
     button = "Continue",
     action?: string,
+    alternate?: { label: string; action: string },
   ) {
-    useGame.setState({ dialogue: { speaker, role, lines, button, action } });
+    useGame.setState({
+      dialogue: { speaker, role, lines, button, action, alternate },
+    });
     this.setMode("dialogue");
   }
   async command(name: string) {
@@ -352,7 +359,12 @@ export class GameRuntime {
       );
     else if (name === "inventory") this.setMode("inventory");
     else if (name === "journal") this.setMode("journal");
-    else if (name === "dialogue-confirm") {
+    else if (name === "dialogue-alternate") {
+      const action = ui().dialogue?.alternate?.action;
+      this.setMode("play");
+      useGame.setState({ dialogue: null });
+      if (action) this.action(action);
+    } else if (name === "dialogue-confirm") {
       const action = ui().dialogue?.action;
       this.setMode("play");
       useGame.setState({ dialogue: null });
@@ -363,8 +375,8 @@ export class GameRuntime {
       this.follow.reset();
       ui().notify(
         s.equipment.sword
-          ? "Dawnwake travels with you."
-          : "Dawnwake remains in your collection.",
+          ? "The Dawnblade travels with you."
+          : "The Dawnblade remains in your collection.",
         s.equipment.sword ? "LEGENDARY WEAPON EQUIPPED" : "LEGENDARY WEAPON",
       );
     } else if (name === "replay-opening") {
@@ -398,52 +410,80 @@ export class GameRuntime {
     const s = ui().save;
     if (id === "edda") {
       this.dialogue(
-        "Edda",
-        "APPRENTICE BELLKEEPER",
+        "Itto",
+        "WATER STEWARD · TIZI HIGHLANDS",
         s.quest.sword
           ? [
-              "Listen… it remembers us again.",
-              "Take Dawnwake somewhere it has never seen. Stories need new roads.",
+              "You carry the work of many hands. Follow the water south; the oasis has its own story.",
             ]
           : s.quest.accepted
             ? [
-                "Kindness in the grove. Courage at the crossing. Belonging in the archive.",
-                "Carry those echoes to Crownstone. The guardian will listen.",
+                "Restore the spring, reopen the passage, then read the granary's records.",
+                "At the Dawn Terrace, bring water, passage and trust—in that order.",
               ]
             : [
-                "Our bell forgot its song. Now we’re forgetting the people it called home.",
-                "Find three echoes: kindness in the grove, courage at the crossing, and belonging in the archive.",
-                "Bring them to Crownstone Sanctuary. Perhaps the old sword remembers the dawn.",
+                "The spring is blocked. The pass is closed. Two families claim the same grain.",
+                "No one person can keep a village alive. But you can help us begin.",
+                "Open the three intake gates by the cedar spring. Then recover the caravan record and help the granary keeper.",
               ],
-        s.quest.accepted ? "I’ll keep going" : "I’ll find the echoes",
+        s.quest.accepted ? "I’ll continue the work" : "I’ll help the community",
         s.quest.accepted ? undefined : "accept",
       );
       return;
     }
+    if (id === "granary") {
+      if (s.quest.memory < 3)
+        this.dialogue("Hammou", "KEEPER OF THE COMMUNAL STORES", [
+          "Two households claim one delivery. I will not take a family’s word away from them.",
+          "Read the measure, compare the seals, then check the shared reserve. Let evidence come before judgment.",
+        ]);
+      else if (s.quest.echoes.includes("archive"))
+        this.dialogue("Hammou", "KEEPER OF THE COMMUNAL STORES", [
+          s.granaryDecision === "sealed"
+            ? "The disputed cells stay sealed. The communal reserve is feeding both households until we settle their shares."
+            : "Both households witnessed the measure. No family has to face the season alone.",
+        ]);
+      else
+        this.dialogue(
+          "Hammou",
+          "WHOSE GRAIN IS IT?",
+          [
+            "The delivery predates the family's division. Both seals are genuine.",
+            "We can release a measured share with both households present, or keep the disputed grain sealed and open the communal reserve.",
+            "Which agreement should I record?",
+          ],
+          "Release a witnessed measure",
+          "granary-witnessed",
+          {
+            label: "Seal it; use the shared reserve",
+            action: "granary-sealed",
+          },
+        );
+      return;
+    }
     if (id === "healer") {
       this.dialogue(
-        "Mira",
-        "BELLHAVEN’S HEALER",
+        "Hadda",
+        "HERBALIST · THE CEDAR TRAIL",
         s.sideQuest.delivered
           ? [
-              "A little moonlight, for the room you always return to.",
-              "Keep the lantern close. Good stories deserve a warm light.",
+              "A clay lamp, for the home you return to. Someone here will remember your kindness.",
             ]
           : s.sideQuest.herbs
             ? [
-                "You made it back. And with the moonfern intact!",
-                "Those hollow wardens are memories that lost their way. You did well to come through.",
-                "Take my moonfern lantern. Let it remind you that somewhere, you helped.",
+                "You brought the herbs back. Thank you.",
+                "You found your own way through the shadows on the trail. A safe return matters more than a fight.",
+                "Take this lamp. Carry a little warmth on your next journey.",
               ]
             : [
-                "The grove’s moonfern steadies a frightened heart. I could use a bundle for the village.",
-                "It grows along Elderwood Trail, beyond the bridge. Will you bring some back?",
+                "I need a bundle of the pale herbs along the cedar trail, beyond the bridge.",
+                "Will you bring them back? I can offer a lamp for your home.",
               ],
         s.sideQuest.delivered
           ? "Until next time"
           : s.sideQuest.herbs
-            ? "Deliver moonfern"
-            : "I’ll bring it back",
+            ? "Deliver the trail herbs"
+            : "I’ll bring them back",
         s.sideQuest.delivered
           ? undefined
           : s.sideQuest.herbs
@@ -453,31 +493,50 @@ export class GameRuntime {
       return;
     }
     if (id === "guardian") {
-      this.dialogue("The memory guardian", "CROWNSTONE SANCTUARY", [
-        "A world is not remembered by its stone.",
-        "First, the kindness that keeps a light safe. Then, the courage to cross the dark. Finally, the belonging that calls us home.",
-        "Answer with the three runes. Let your memories speak.",
+      this.dialogue("The storykeeper", "THE DAWN TERRACE", [
+        "A story is more than a name carved in stone.",
+        "Water keeps the gardens alive. A passage joins us to our neighbors. Trust protects what we keep together.",
+        "Offer the records in that order. Let the dawn hear what you have done.",
       ]);
       return;
     }
     if (id === "sable" || id === "boutique") {
       this.dialogue(
-        "Sable",
-        "VELVET ATELIER",
+        "The channel keeper",
+        "TARGA · THE WEAVING COURTYARD",
         s.inventory.includes("velvet-jacket")
           ? [
-              "That jacket has already been to another universe. I can tell.",
-              "Bring me another story next time.",
+              "The mantle holds a little of this place. Your blade remembers the mountains.",
+              "Take both home. Come back when you need to hear running water.",
             ]
-          : [
-              "Okay, where did you get THAT?",
-              "A sword from a forgotten kingdom… and you brought it here.",
-              "Try this jacket. Every great story needs a second chapter.",
-            ],
+          : s.oasis.restored
+            ? [
+                "The gardens have water again, and the shared cistern is filling.",
+                "The weaver finished this mantle while you worked. Take it, and this silver clasp, with our thanks.",
+              ]
+            : s.oasis.accepted
+              ? [
+                  "Clear the gallery's filter, seal the garden leak, then open the gate that shares water with the cistern.",
+                  "Follow the channels; they tell you where the trouble is.",
+                ]
+              : [
+                  "That blade has crossed the cedar country. Here, water tells our stories.",
+                  "Our underground gallery still brings water, but the filter is blocked, a garden channel leaks and the sharing gate is stuck.",
+                  "Will you help us get water to every courtyard?",
+                ],
         s.inventory.includes("velvet-jacket")
-          ? "See you around"
-          : "Wear the Velvet jacket",
-        s.inventory.includes("velvet-jacket") ? undefined : "jacket",
+          ? "Until the next journey"
+          : s.oasis.restored
+            ? "Accept the woven mantle"
+            : s.oasis.accepted
+              ? "I’ll follow the channels"
+              : "I’ll help restore the channels",
+        s.inventory.includes("velvet-jacket") ||
+          (s.oasis.accepted && !s.oasis.restored)
+          ? undefined
+          : s.oasis.restored
+            ? "jacket"
+            : "oasis-accept",
       );
       return;
     }
@@ -501,8 +560,8 @@ export class GameRuntime {
       const dest = id.slice(7) as WorldId;
       if (dest === "city" && !s.quest.sword) {
         ui().notify(
-          "A story from Lumenreach will wake this doorway.",
-          "VELVET CITY",
+          "First carry a story from the highlands into this doorway.",
+          "TARGA OASIS",
         );
         return;
       }
@@ -521,12 +580,12 @@ export class GameRuntime {
       if (result.reward === "moonfern-lantern") {
         this.audio.cue("reward");
         ui().notify(
-          "The moonfern lantern",
+          "The herbalist’s clay lamp",
           "HOME KEEPSAKE ACQUIRED · DISPLAYED IN YOUR ROOM",
         );
       } else if (result.reward === "jacket") {
         this.audio.cue("reward");
-        ui().notify("The Velvet jacket", "OUTFIT ACQUIRED · EQUIPPED");
+        ui().notify("The oasis mantle", "OUTFIT ACQUIRED · EQUIPPED");
       } else this.echoReward(result.reward);
     }
     if (id === "display" && result.save.home.sword) {
@@ -538,8 +597,8 @@ export class GameRuntime {
         this.startCinematic("ending");
       else
         ui().notify(
-          "The sword that remembers the dawn.",
-          "DAWNWAKE · DISPLAYED AT HOME",
+          "A fantasy blade carrying the work of many hands.",
+          "THE DAWNBLADE · DISPLAYED AT HOME",
         );
     }
   }
@@ -552,11 +611,11 @@ export class GameRuntime {
     this.reward = { object, start, time: 0 };
     ui().notify(
       {
-        forest: "The echo of kindness",
-        crossing: "The echo of courage",
-        archive: "The echo of belonging",
+        forest: "The water stewards’ testimony",
+        crossing: "The caravan passage record",
+        archive: "The granary’s shared ledger",
       }[name] || "A memory found",
-      "MEMORY RESTORED · " + ui().save.quest.echoes.length + "/3",
+      "COMMUNITY RECORD KEPT · " + ui().save.quest.echoes.length + "/3",
     );
   }
   private startCinematic(kind: string) {
@@ -718,18 +777,18 @@ export class GameRuntime {
             : 0;
       const region =
         this.world.id === "home"
-          ? "The Wayfarer’s Room"
+          ? "The Courtyard"
           : this.world.id === "city"
-            ? "Velvet City"
+            ? "Targa Oasis"
             : p.x > 22 && p.z < -23
-              ? "Crownstone Sanctuary"
+              ? "The Dawn Terrace"
               : p.z < -24
-                ? "Bellhaven"
+                ? "Tizi Village"
                 : p.x < -17
-                  ? "The Moonflower Grove"
+                  ? "The Cedar Spring"
                   : Math.abs(p.z + 12) < 12
-                    ? "The Silverbrook"
-                    : "Lumenreach";
+                    ? "The Highland Watercourse"
+                    : "Tizi Highlands";
       if (
         state.promptId !== (this.hot?.id || "") ||
         state.region !== region ||
@@ -765,8 +824,8 @@ export class GameRuntime {
           ui().update(() => result.save);
           this.audio.cue("reward");
           ui().notify(
-            "Rune stone " + result.save.quest.steps + " awakened.",
-            "THE ANCIENT CROSSING",
+            "Passage platform " + result.save.quest.steps + " crossed.",
+            "THE CARAVAN PASSAGE",
           );
         }
       }
@@ -838,7 +897,7 @@ export class GameRuntime {
           this.world.physics.teleport(-24, -26);
           this.follow.reset();
           ui().notify(
-            "The runes dimmed. Turn the mechanism and try the crossing again.",
+            "The winch settled. Try the passage again; your records are safe.",
             "CROSSING LOST · MEMORIES KEPT",
           );
         }

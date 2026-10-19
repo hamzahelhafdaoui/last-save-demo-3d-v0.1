@@ -1399,3 +1399,180 @@ select {
     margin-top: 4px;
   }
 }
+
+/* AMAN: linen, cedar, patinated silver, clay. Original woven geometry, not a
+   claim that a repeated ornament has one universal Amazigh meaning. */
+:root {
+  --linen: #f0e2c4;
+  --clay: #a86f4d;
+  --cedar: #425f51;
+  --water: #91b5aa;
+  --gold: #d8b985;
+  color: var(--linen);
+}
+.title {
+  background: linear-gradient(90deg, #172b2ae6, #18302970 57%, #241e1a24);
+}
+.title h1 {
+  font-size: clamp(62px, 8vw, 112px);
+  letter-spacing: -0.055em;
+  line-height: 0.95;
+  margin-bottom: 24px;
+}
+.aman-title {
+  display: block;
+  font-size: 0.48em;
+  letter-spacing: 0.36em;
+  margin-top: 14px;
+  color: #cdb78c;
+}
+.title-body > p {
+  font-size: 26px;
+}
+.title-top,
+.title-bottom {
+  color: #ddd0b3;
+}
+.title-body .eyebrow {
+  color: #d5c8a7;
+}
+.panel,
+.customizer,
+.dialogue {
+  background: linear-gradient(135deg, #263b34f5, #302d25f8);
+  border-color: #a6906859;
+  box-shadow: 0 22px 100px #10211c80;
+}
+.panel::before,
+.dialogue::before,
+.customizer::before {
+  content: "";
+  display: block;
+  height: 7px;
+  margin-bottom: 24px;
+  opacity: 0.8;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent 0 8px,
+    #bba477 8px 10px,
+    transparent 10px 17px,
+    #6b8b77 17px 20px
+  );
+}
+button {
+  background: #303c32;
+  border-color: #a38f6866;
+}
+button:hover {
+  background: #4c5140;
+  border-color: #d0b582;
+}
+button.selected {
+  background: #6f745052;
+  border-color: #d1b57f;
+}
+button.primary {
+  background: #ddc399;
+  color: #27352c;
+}
+.eyebrow {
+  color: #d6c39e;
+}
+.world-name .crest {
+  color: #d3bd8e;
+}
+.objective {
+  background: linear-gradient(90deg, transparent, #1a302b90);
+  padding: 13px 15px;
+  border-right: 2px solid #bdad815c;
+}
+.touch #joystick {
+  background: #253b3260;
+  border-color: #d7c49d69;
+}
+#stick {
+  background: #bcae835c;
+  border-color: #e3d3a399;
+}
+.touch #jump,
+.touch #action {
+  background: #283f34aa;
+  border-color: #cbb98f80;
+}
+.dialogue-alternate {
+  margin-top: 12px;
+  width: 100%;
+  border-color: #aa9c74;
+}
+.agreement {
+  color: #d6ccab;
+  padding: 15px;
+  border-left: 2px solid #839d85;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.region-notes {
+  margin: 16px 0;
+  padding: 15px 0;
+  border-top: 1px solid #b4aa7f33;
+  font-size: 12px;
+  line-height: 1.7;
+}
+.region-notes summary {
+  color: #d6c6a1;
+  cursor: pointer;
+  margin-bottom: 10px;
+}
+.region-notes h3 {
+  margin-bottom: 4px;
+  margin-top: 16px;
+}
+.region-notes p {
+  color: #c0c3ab;
+  margin-bottom: 9px;
+}
+.region-notes small {
+  font:
+    9px Manrope,
+    sans-serif;
+  color: #a8b19d;
+}
+@media (max-width: 540px) {
+  .title h1 {
+    font-size: 68px;
+  }
+  .title-body > p {
+    font-size: 22px;
+  }
+  .title-top {
+    font-size: 7px;
+    gap: 18px;
+  }
+  .title .eyebrow {
+    font-size: 7px;
+    letter-spacing: 2px;
+  }
+  .title-body .primary {
+    min-width: 220px;
+  }
+  .touch .objective {
+    max-width: 185px;
+    padding: 8px 9px;
+  }
+  .dialogue {
+    max-height: 76dvh;
+    overflow: auto;
+  }
+}
+@media (max-height: 550px) {
+  .title h1 {
+    font-size: 60px;
+  }
+  .aman-title {
+    margin-top: 7px;
+  }
+  .title-body > p {
+    font-size: 21px;
+    margin-bottom: 13px;
+  }
+}

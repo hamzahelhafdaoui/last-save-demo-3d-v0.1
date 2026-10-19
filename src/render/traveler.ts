@@ -2,6 +2,7 @@ import * as T from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import type { Appearance } from "../state/model";
 import { makeSword, box, mat } from "./kit";
+import { surface, silverClasp } from "./amazigh";
 let template: Promise<T.Group> | null = null;
 export class Traveler {
   root = new T.Group();
@@ -11,6 +12,8 @@ export class Traveler {
   private gait = 0;
   sword = makeSword();
   private jacket = new T.Group();
+  private tunic: T.Mesh;
+  private clasp: T.Group;
   private appearanceKey = "";
   private constructor(visual: T.Object3D) {
     this.visual = visual;
@@ -39,22 +42,42 @@ export class Traveler {
     this.sword.rotation.set(0.1, 0, -0.48);
     this.root.add(this.sword);
     this.sword.visible = false;
-    box(this.jacket, 0, 1.02, 0, 0.58, 0.52, 0.44, "#24263e");
-    box(this.jacket, 0, 1.27, -0.02, 0.55, 0.12, 0.42, "#e3bc82");
-    for (const s of [-1, 1]) {
-      const lapel = box(
+    // A linen tunic, woven belt and a separate cross-region mantle. These are
+    // original fantasy garments informed by material/climate, not replicas of
+    // a ceremonial ensemble assembled from unrelated Amazigh communities.
+    this.tunic = new T.Mesh(
+      new T.CylinderGeometry(0.32, 0.41, 0.48, 16, 1, true),
+      surface("#c3b08b", "weave").clone(),
+    );
+    this.tunic.position.set(0, 0.72, 0);
+    this.root.add(this.tunic);
+    const belt = new T.Mesh(
+      new T.CylinderGeometry(0.335, 0.34, 0.11, 16, 1, true),
+      surface("#9a694b", "weave"),
+    );
+    belt.position.set(0, 0.94, 0);
+    this.root.add(belt);
+    this.clasp = silverClasp(this.root, 0.22, 1.25, 0.28, 0.42);
+    const mantle = new T.Mesh(
+      new T.CylinderGeometry(0.4, 0.51, 0.8, 16, 1, true),
+      surface("#4b7671", "weave"),
+    );
+    mantle.position.set(0, 0.91, 0);
+    this.jacket.add(mantle);
+    for (const side of [-1, 1]) {
+      const trim = box(
         this.jacket,
-        s * 0.16,
-        1.19,
-        0.24,
-        0.13,
-        0.34,
-        0.07,
-        "#d6ab84",
+        side * 0.25,
+        1.15,
+        0.31,
+        0.055,
+        0.45,
+        0.045,
+        "#d6b98d",
       );
-      lapel.rotation.z = -s * 0.28;
-      box(this.jacket, s * 0.2, 0.92, 0.245, 0.14, 0.035, 0.025, "#8c57ad");
+      trim.rotation.z = -side * 0.22;
     }
+    silverClasp(this.jacket, 0, 1.25, 0.39, 0.5);
     this.root.add(this.jacket);
     this.jacket.visible = false;
   }
@@ -66,6 +89,8 @@ export class Traveler {
   }
   appearance(a: Appearance, jacket = false, sword = false) {
     this.sword.visible = sword;
+    this.clasp.visible = a.accessory && !jacket;
+    (this.tunic.material as T.MeshStandardMaterial).color.set(a.primary);
     this.jacket.visible = jacket;
     const key = JSON.stringify(a) + jacket;
     if (key === this.appearanceKey) return;

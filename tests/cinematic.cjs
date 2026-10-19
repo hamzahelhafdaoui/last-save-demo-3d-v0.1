@@ -21,7 +21,7 @@ const fs = require("node:fs");
     await p.goto(base);
     await p.evaluate(() =>
       localStorage.setItem(
-        "last-save.investor.v2",
+        "last-save.aman.v1",
         JSON.stringify({
           version: 2,
           created: true,

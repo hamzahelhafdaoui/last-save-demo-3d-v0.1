@@ -22,6 +22,8 @@ export type Save = {
     defeated: boolean;
     delivered: boolean;
   };
+  oasis: { accepted: boolean; repairs: number[]; restored: boolean };
+  granaryDecision: "witnessed" | "sealed" | null;
   appearance: Appearance;
   created: boolean;
   world: WorldId;
@@ -47,7 +49,7 @@ export type Save = {
     sensitivity: number;
   };
 };
-export const SAVE_KEY = "last-save.investor.v2";
+export const SAVE_KEY = "last-save.aman.v1";
 export const DEFAULT_APPEARANCE: Appearance = {
   name: "Wayfarer",
   preset: "amber",
@@ -55,8 +57,8 @@ export const DEFAULT_APPEARANCE: Appearance = {
   hair: "#633c2d",
   hairStyle: 0,
   eyes: "#294c4b",
-  primary: "#256c70",
-  secondary: "#d6a84b",
+  primary: "#6e8069",
+  secondary: "#b28250",
   accessory: true,
 };
 export function freshSave(): Save {
@@ -70,6 +72,8 @@ export function freshSave(): Save {
       defeated: false,
       delivered: false,
     },
+    oasis: { accepted: false, repairs: [], restored: false },
+    granaryDecision: null,
     appearance: { ...DEFAULT_APPEARANCE },
     created: false,
     world: "home",
@@ -114,6 +118,23 @@ export function validateSave(raw: unknown): Save {
     defeated: side.defeated === true,
     delivered: side.delivered === true,
   };
+  f.oasis = {
+    accepted: r.oasis?.accepted === true,
+    repairs: Array.isArray(r.oasis?.repairs)
+      ? [
+          ...new Set<number>(
+            r.oasis.repairs.filter((n: unknown) =>
+              [0, 1, 2].includes(n as number),
+            ),
+          ),
+        ]
+      : [],
+    restored: false,
+  };
+  f.oasis.restored = f.oasis.repairs.length === 3;
+  f.granaryDecision = ["witnessed", "sealed"].includes(r.granaryDecision)
+    ? r.granaryDecision
+    : null;
   f.created = r.created === true;
   f.appearance = {
     ...f.appearance,
@@ -171,6 +192,7 @@ export function validateSave(raw: unknown): Save {
         ...new Set<string>(
           r.inventory.filter((x: unknown) =>
             [
+              "oasis-clasp",
               "dawnwake",
               "velvet-jacket",
               "moonfern-lantern",
@@ -258,132 +280,184 @@ export function objective(s: Save): {
   world: WorldId;
   target: [number, number];
 } {
+  const goal = (
+    title: string,
+    detail: string,
+    world: WorldId,
+    target: [number, number],
+  ) => ({ title, detail, world, target });
   if (
     s.experience === "quest" &&
     s.sideQuest.accepted &&
     !s.sideQuest.delivered
   ) {
     if (!s.sideQuest.herbs)
-      return {
-        title: "A light for the lost",
-        detail: "Gather moonfern on Elderwood Trail for Bellhaven’s healer.",
-        world: "lumen",
-        target: [-16, 19],
-      };
+      return goal(
+        "A lamp for the journey",
+        "Gather trail herbs for Hadda, the village herbalist.",
+        "lumen",
+        [-16, 19],
+      );
     if (s.sideQuest.ambush && !s.sideQuest.defeated)
-      return {
-        title: "Hollow Wardens in the grove",
-        detail: "F to strike. Q to dodge. Watch their wind-up, then answer.",
-        world: "lumen",
-        target: [-13, 13],
-      };
-    return {
-      title: "A gift that travels with you",
-      detail: "Bring the moonfern to Mira, Bellhaven’s healer.",
-      world: "lumen",
-      target: [10, -29],
-    };
+      return goal(
+        "Shadows on the cedar trail",
+        "F to strike · Q to dodge. Escape is also a choice.",
+        "lumen",
+        [-13, 13],
+      );
+    return goal(
+      "Something worth bringing home",
+      "Return the herbs to Hadda.",
+      "lumen",
+      [10, -29],
+    );
   }
   if (!s.created)
-    return {
-      title: "A face for every world",
-      detail: "Meet yourself in the enchanted mirror.",
-      world: "home",
-      target: [-7, 2],
-    };
-  if (s.world === "home" && !s.quest.sword)
-    return {
-      title: "A world is waiting",
-      detail: "Enter the emerald portal to Lumenreach.",
-      world: "home",
-      target: [-5, -7],
-    };
-  if (s.world === "city" && !s.inventory.includes("velvet-jacket"))
-    return {
-      title: "A different kind of legend",
-      detail: "Meet Sable outside the Velvet Atelier.",
-      world: "city",
-      target: [-6, -8],
-    };
-  if (s.world === "city")
-    return {
-      title: "Bring your story home",
-      detail: "Return through the portal with both worlds’ treasures.",
-      world: "city",
-      target: [0, 12],
-    };
-  if (
-    s.world === "home" &&
-    s.quest.sword &&
-    !s.inventory.includes("velvet-jacket")
-  )
-    return {
-      title: "One character. Another world.",
-      detail: "Step through the violet portal to Velvet City.",
-      world: "home",
-      target: [5, -7],
-    };
-  if (s.world === "home" && !s.home.sword)
-    return {
-      title: "A memory worth keeping",
-      detail: "Mount Dawnwake above the fireplace.",
-      world: "home",
-      target: [-9, -3],
-    };
-  if (s.world === "home")
-    return {
-      title: "Your story continues",
-      detail: "Explore, change your look, or return to either world.",
-      world: "home",
-      target: [0, -7],
-    };
+    return goal(
+      "A traveler, a story",
+      "Choose your look at the courtyard mirror.",
+      "home",
+      [-7, 2],
+    );
+  if (s.world === "city") {
+    if (!s.oasis.accepted)
+      return goal(
+        "Water belongs to a community",
+        "Speak with the channel keeper beside the weaving courtyard.",
+        "city",
+        [-6, -8],
+      );
+    if (!s.oasis.restored) {
+      const i = [0, 1, 2].find((n) => !s.oasis.repairs.includes(n))!;
+      return goal(
+        "The water we share",
+        [
+          "Clear the headworks filter at the gallery outlet.",
+          "Seal the broken garden channel.",
+          "Open the shared distribution gate.",
+        ][i],
+        "city",
+        [
+          [10, -15],
+          [12, 0],
+          [1, -6],
+        ][i] as [number, number],
+      );
+    }
+    if (!s.inventory.includes("velvet-jacket"))
+      return goal(
+        "A gift woven in gratitude",
+        "Return to the weaving courtyard for your mantle and silver clasp.",
+        "city",
+        [-6, -8],
+      );
+    return goal(
+      "Carry both places with you",
+      "Return to your courtyard with the Dawnblade and oasis mantle.",
+      "city",
+      [0, 12],
+    );
+  }
+  if (s.world === "home") {
+    if (!s.quest.sword)
+      return goal(
+        "The highlands are waiting",
+        "Take the cedar-green doorway to Tizi Highlands.",
+        "home",
+        [-5, -7],
+      );
+    if (!s.inventory.includes("velvet-jacket"))
+      return goal(
+        "A new landscape, the same you",
+        "Travel through the turquoise doorway to Targa Oasis.",
+        "home",
+        [5, -7],
+      );
+    if (!s.home.sword)
+      return goal(
+        "A place for every story",
+        "Display the Dawnblade above your hearth.",
+        "home",
+        [-9, -3],
+      );
+    return goal(
+      "Your story continues",
+      "Your mantle, blade and keepsakes remember both communities.",
+      "home",
+      [0, -7],
+    );
+  }
   if (!s.quest.accepted)
-    return {
-      title: "The last bell of Lumenreach",
-      detail: "Follow the bridge to Edda in Bellhaven.",
-      world: "lumen",
-      target: [4, -27],
-    };
-  if (!s.quest.echoes.includes("forest"))
-    return {
-      title: "The echo of kindness",
-      detail:
-        s.quest.flowers.length === 3
-          ? "The brambles have opened. Approach the little light."
-          : "Wake the three moonflowers around the trapped creature.",
-      world: "lumen",
-      target: [-25, 8],
-    };
+    return goal(
+      "The water, the road, the trust",
+      "Cross the stone bridge and speak with Itto in the village.",
+      "lumen",
+      [4, -27],
+    );
+  if (!s.quest.echoes.includes("forest")) {
+    const i = [0, 1, 2].find((n) => !s.quest.flowers.includes(n));
+    return goal(
+      "A spring runs again",
+      i === undefined
+        ? "Record the restored spring at the channel junction."
+        : `Open intake gate ${["I", "II", "III"][i]}. ${s.quest.flowers.length}/3 flowing.`,
+      "lumen",
+      i === undefined
+        ? [-25, 8]
+        : ([
+            [-24, 12],
+            [-29, 7],
+            [-20, 5],
+          ][i] as [number, number]),
+    );
+  }
   if (!s.quest.echoes.includes("crossing"))
-    return {
-      title: "The echo of courage",
-      detail: !s.quest.mechanism
-        ? "Turn the ancient mechanism at the broken crossing."
-        : `Cross the three rising rune stones. ${s.quest.steps}/3 awakened.`,
-      world: "lumen",
-      target: s.quest.mechanism ? [-40, -40] : [-24, -28],
-    };
+    return goal(
+      "Reopen the caravan passage",
+      !s.quest.mechanism
+        ? "Raise the winch beside the closed passage."
+        : s.quest.steps < 3
+          ? `Cross the three marked platforms. ${s.quest.steps}/3 crossed.`
+          : "Recover the caravan record beyond the passage.",
+      "lumen",
+      !s.quest.mechanism
+        ? [-24, -28]
+        : s.quest.steps < 3
+          ? ([
+              [-29, -31],
+              [-33, -34],
+              [-37, -37],
+            ][s.quest.steps] as [number, number])
+          : [-40, -40],
+    );
   if (!s.quest.echoes.includes("archive"))
-    return {
-      title: "The echo of belonging",
-      detail: "Rebuild a memory in the archive: light, call, remember.",
-      world: "lumen",
-      target: [15, -48],
-    };
+    return goal(
+      "Whose grain is it?",
+      s.quest.memory < 3
+        ? "Read the evidence in order: delivery, family seals, shared reserve."
+        : "Speak with the granary keeper and decide how to protect the stores.",
+      "lumen",
+      s.quest.memory < 3
+        ? ([
+            [13, -46],
+            [17, -46],
+            [15, -50],
+          ][s.quest.memory] as [number, number])
+        : [15, -48],
+    );
   if (!s.quest.sword)
-    return {
-      title: "Where the dawn sleeps",
-      detail:
-        s.quest.guardian < 3
-          ? "Answer the guardian’s three memories in Crownstone Sanctuary."
-          : "Approach the stone. Claim Dawnwake.",
-      world: "lumen",
-      target: [33, -38],
-    };
-  return {
-    title: "The road between worlds",
-    detail: "A new portal awaits beside Edda in Bellhaven.",
-    world: "lumen",
-    target: [8, -24],
-  };
+    return goal(
+      "The Dawn Terrace",
+      s.quest.guardian < 3
+        ? "Offer water, passage and trust to the storykeeper, in that order."
+        : "Approach the stone and claim the Dawnblade.",
+      "lumen",
+      [33, -38],
+    );
+  return goal(
+    "Follow the water south",
+    "The doorway beside Itto leads to Targa Oasis.",
+    "lumen",
+    [8, -24],
+  );
 }

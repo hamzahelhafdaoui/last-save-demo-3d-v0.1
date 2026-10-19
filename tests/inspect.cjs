@@ -16,9 +16,9 @@ const { chromium } = require("playwright");
     if (m.type() === "error") console.log("CONSOLE", m.text());
   });
   await p.addInitScript(() => {
-    if (!localStorage.getItem("last-save.investor.v2"))
+    if (!localStorage.getItem("last-save.aman.v1"))
       localStorage.setItem(
-        "last-save.investor.v2",
+        "last-save.aman.v1",
         JSON.stringify({ version: 2, settings: { quality: "low", volume: 0 } }),
       );
   });

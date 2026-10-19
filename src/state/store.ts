@@ -27,6 +27,7 @@ export type Dialogue = {
   lines: string[];
   button: string;
   action?: string;
+  alternate?: { label: string; action: string };
 };
 type UI = {
   health: number;
@@ -66,7 +67,7 @@ export const useGame = create<UI>((set, get) => ({
   storage: true,
   prompt: "",
   promptId: "",
-  region: "The Wayfarer’s Room",
+  region: "The Courtyard",
   distance: 0,
   notice: null,
   dialogue: null,

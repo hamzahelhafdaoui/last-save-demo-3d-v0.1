@@ -1,6 +1,6 @@
 {
-  "name": "last-save-demo-3d",
-  "version": "0.1.0-dev.2",
+  "name": "last-save-aman",
+  "version": "0.1.0-aman.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,7 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 0.0.0.0",
     "test": "tsx --test tests/*.test.ts",
-    "test:browser": "node tests/playthrough.cjs"
+    "test:browser": "node tests/aman-playthrough.cjs",
+    "test:mobile": "node tests/mobile.cjs"
   },
   "dependencies": {
     "@dimforge/rapier3d-compat": "^0.21.0",

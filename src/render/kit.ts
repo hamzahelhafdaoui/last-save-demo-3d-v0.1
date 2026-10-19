@@ -161,7 +161,22 @@ export function portal(
   const g = new T.Group();
   g.position.set(x, y, z);
   p.add(g);
-  const outer = ring(g, 0, 2.2, 0, 1.95, 0.22, "#93838c");
+  const outer = ring(g, 0, 2.2, 0, 1.95, 0.16, "#a9a285");
+  for (const side of [-1, 1]) {
+    box(g, side * 2.05, 2.1, 0, 0.26, 4.2, 0.4, "#897052");
+    for (let i = 0; i < 6; i++)
+      box(
+        g,
+        side * 2.05,
+        0.4 + i * 0.65,
+        0.23,
+        0.3,
+        0.12,
+        0.04,
+        i % 2 ? "#c9b584" : "#698675",
+      );
+  }
+  box(g, 0, 4.45, 0, 4.7, 0.25, 0.55, "#bda77d");
   outer.scale.y = 1.18;
   const inner = ring(g, 0, 2.2, 0.02, 1.73, 0.045, color);
   inner.scale.y = 1.18;
@@ -241,7 +256,7 @@ export class Motes {
 }
 export function makeSword() {
   const g = new T.Group();
-  g.name = "Dawnwake";
+  g.name = "The Dawnblade";
   const shape = new T.Shape();
   shape.moveTo(0, -1.55);
   shape.lineTo(-0.15, -1.22);
@@ -261,17 +276,17 @@ export function makeSword() {
   });
   mesh(g, blade, mat("#d8edf0", 0.86));
   box(g, 0, -0.64, 0.085, 0.018, 1.14, 0.015, "#d9b96f");
-  const guard = box(g, 0, 0.07, 0, 0.76, 0.1, 0.16, "#cba452");
+  const guard = box(g, 0, 0.07, 0, 0.76, 0.1, 0.16, "#bfc6bc");
   guard.rotation.z = 0.04;
   for (const s of [-1, 1]) {
-    const end = ball(g, s * 0.36, 0.08, 0, 0.1, "#e6bf6b");
+    const end = ball(g, s * 0.36, 0.08, 0, 0.1, "#d3d5c3");
     end.scale.set(1, 0.65, 0.75);
   }
-  cyl(g, 0, 0.3, 0, 0.065, 0.42, "#3c425b");
+  cyl(g, 0, 0.3, 0, 0.065, 0.42, "#73503d");
   for (let i = 0; i < 5; i++)
     ring(g, 0, 0.13 + i * 0.07, 0, 0.066, 0.012, "#c5a56b").rotation.x =
       Math.PI / 2;
-  ball(g, 0, 0.57, 0, 0.105, "#d5b36a");
+  ball(g, 0, 0.57, 0, 0.105, "#bbc5b7");
   const crystal = mesh(
     g,
     new T.OctahedronGeometry(0.16),

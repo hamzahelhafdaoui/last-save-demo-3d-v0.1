@@ -1,24 +1,77 @@
 import { addEcho, grantSword, type Save } from "./model";
 export type ActionResult = { save: Save; message?: string; reward?: string };
 export function act(s: Save, id: string): ActionResult {
-  let next: Save = structuredClone(s);
-  const q = next.quest;
+  const next: Save = structuredClone(s),
+    q = next.quest;
+  if (id === "oasis-accept") {
+    next.oasis.accepted = true;
+    return {
+      save: next,
+      message:
+        "Follow the channel. Repair the filter, the garden leak and the sharing gate.",
+    };
+  }
+  if (id.startsWith("oasis-repair-")) {
+    if (!s.oasis.accepted)
+      return {
+        save: s,
+        message:
+          "The channel keeper will explain what each neighborhood needs.",
+      };
+    const i = Number(id.slice(-1));
+    if (![0, 1, 2].includes(i)) return { save: s };
+    if (!next.oasis.repairs.includes(i)) next.oasis.repairs.push(i);
+    next.oasis.restored = next.oasis.repairs.length === 3;
+    return {
+      save: next,
+      message: next.oasis.restored
+        ? "Water reaches the gardens and the shared cistern. Return to the weaving courtyard."
+        : [
+            "The filter is clear. Water leaves the gallery again.",
+            "The joint holds. The garden channel stops losing water.",
+            "The sharing gate opens to both neighborhoods.",
+          ][i],
+    };
+  }
+  if (id === "granary-witnessed" || id === "granary-sealed") {
+    if (q.memory < 3 || !q.echoes.includes("crossing"))
+      return {
+        save: s,
+        message: "Read all three pieces of evidence before deciding.",
+      };
+    if (q.echoes.includes("archive")) return { save: s };
+    next.granaryDecision = id === "granary-witnessed" ? "witnessed" : "sealed";
+    return {
+      save: addEcho(next, "archive"),
+      reward: "archive",
+      message:
+        id === "granary-witnessed"
+          ? "The keeper records a measured release, witnessed by both families."
+          : "The keeper seals the disputed cells and opens the communal reserve instead.",
+    };
+  }
   if (id === "healer-accept") {
     next.sideQuest.accepted = true;
     return { save: next };
   }
   if (id === "herbs") {
-    if (!next.sideQuest.accepted)
+    if (!s.sideQuest.accepted)
       return {
         save: s,
-        message: "Mira, Bellhaven’s healer, knows these silver leaves.",
+        message: "Hadda, the herbalist, knows which trail plants she needs.",
       };
     next.sideQuest.herbs = true;
-    return { save: next, message: "Moonfern gathered. Bring it back to Mira." };
+    return {
+      save: next,
+      message: "A bundle of trail herbs. Bring it back to Hadda.",
+    };
   }
   if (id === "deliver-herbs") {
-    if (!next.sideQuest.herbs)
-      return { save: s, message: "The moonfern grows along Elderwood Trail." };
+    if (!s.sideQuest.herbs)
+      return {
+        save: s,
+        message: "Look along the cedar trail beyond the bridge.",
+      };
     next.sideQuest.delivered = true;
     if (!next.inventory.includes("moonfern-lantern"))
       next.inventory.push("moonfern-lantern");
@@ -35,7 +88,7 @@ export function act(s: Save, id: string): ActionResult {
     if (!q.accepted)
       return {
         save: s,
-        message: "Edda in Bellhaven knows why these flowers are sleeping.",
+        message: "Speak with Itto before changing the community's water gates.",
       };
     const n = Number(id.slice(-1));
     if (![0, 1, 2].includes(n)) return { save: s };
@@ -44,15 +97,15 @@ export function act(s: Save, id: string): ActionResult {
       save: next,
       message:
         q.flowers.length === 3
-          ? "The brambles loosen. The little light is free."
-          : "A moonflower opens. Something stirs in the brambles.",
+          ? "The channels meet. The cedar spring flows again."
+          : "An intake opens. Water finds the next channel.",
     };
   }
   if (id === "forest-echo") {
     if (q.flowers.length !== 3)
       return {
         save: s,
-        message: "Wake all three moonflowers to loosen the brambles.",
+        message: "Open all three intakes before recording the water testimony.",
       };
     if (q.echoes.includes("forest")) return { save: s };
     return { save: addEcho(next, "forest"), reward: "forest" };
@@ -61,12 +114,13 @@ export function act(s: Save, id: string): ActionResult {
     if (!q.echoes.includes("forest"))
       return {
         save: s,
-        message: "The mechanism needs the warmth of the forest’s echo.",
+        message: "Restore the spring before leaving for the pass.",
       };
     q.mechanism = true;
     return {
       save: next,
-      message: "The crossing wakes. Jump from one golden rune to the next.",
+      message:
+        "The winch lifts. Cross the three marked platforms to the caravan record.",
     };
   }
   if (id.startsWith("step-")) {
@@ -78,7 +132,7 @@ export function act(s: Save, id: string): ActionResult {
     if (q.steps < 3)
       return {
         save: s,
-        message: "Awaken all three rune stones by standing on them.",
+        message: "Check all three platforms before reopening this route.",
       };
     if (q.echoes.includes("crossing")) return { save: s };
     return { save: addEcho(next, "crossing"), reward: "crossing" };
@@ -87,32 +141,36 @@ export function act(s: Save, id: string): ActionResult {
     if (!q.echoes.includes("crossing"))
       return {
         save: s,
-        message: "The memory is faint. Find courage at the crossing first.",
+        message:
+          "The missing delivery record is still beyond the caravan passage.",
       };
-    const n = Number(id.slice(-1));
     if (q.echoes.includes("archive")) return { save: s };
+    const n = Number(id.slice(-1));
     if (n === q.memory) {
       q.memory++;
-      if (q.memory === 3)
-        return { save: addEcho(next, "archive"), reward: "archive" };
       return {
         save: next,
-        message:
-          n === 0
-            ? "A lantern on the road. Who called them home?"
-            : "The bell rings. Now keep the memory.",
+        message: [
+          "The delivery measure: the grain arrived before the family divided.",
+          "The seals: both households share the same delivery mark.",
+          "The reserve ledger: enough communal grain remains to help both. Speak with the keeper.",
+        ][n],
       };
     }
     q.memory = 0;
     return {
       save: next,
       message:
-        "The memory unravels. First light the road, then call them home, then remember.",
+        "Read the evidence from its beginning: delivery, family seals, shared reserve.",
     };
   }
   if (id.startsWith("guardian-")) {
     if (q.echoes.length < 3)
-      return { save: s, message: "Three echoes must answer the guardian." };
+      return {
+        save: s,
+        message:
+          "Water, passage and trust: the storykeeper needs all three records.",
+      };
     const n = Number(id.slice(-1));
     if (n === q.guardian) q.guardian++;
     else q.guardian = 0;
@@ -120,13 +178,10 @@ export function act(s: Save, id: string): ActionResult {
       save: next,
       message:
         q.guardian === 3
-          ? "The guardian bows. Dawnwake is yours to claim."
+          ? "Your deeds speak. The Dawnblade is yours to carry."
           : n === q.guardian - 1
-            ? [
-                "Kindness. A light kept safe.",
-                "Courage. A road crossed together.",
-              ][n]
-            : "Listen again: kindness, courage, belonging.",
+            ? ["Water restored, together.", "A road reopened for everyone."][n]
+            : "The order is water, passage, then trust.",
     };
   }
   if (id === "sword") {
@@ -134,21 +189,19 @@ export function act(s: Save, id: string): ActionResult {
     if (q.echoes.length < 3 || q.guardian < 3)
       return {
         save: s,
-        message: "The guardian has not yet entrusted you with the dawn.",
+        message: "Offer all three community records at the Dawn Terrace.",
       };
-    return {
-      save: grantSword(next),
-      reward: !s.quest.sword ? "dawnwake" : undefined,
-    };
+    return { save: grantSword(next), reward: "dawnwake" };
   }
   if (id === "jacket") {
-    if (!q.sword)
+    if (!s.oasis.restored)
       return {
         save: s,
-        message: "Sable is waiting to see a story worth wearing.",
+        message:
+          "Restore the oasis channels before collecting the community's gift.",
       };
-    if (!next.inventory.includes("velvet-jacket"))
-      next.inventory.push("velvet-jacket");
+    for (const item of ["velvet-jacket", "oasis-clasp"])
+      if (!next.inventory.includes(item)) next.inventory.push(item);
     next.equipment.jacket = true;
     return {
       save: next,
@@ -159,7 +212,7 @@ export function act(s: Save, id: string): ActionResult {
     if (!q.sword)
       return {
         save: s,
-        message: "Every story leaves something worth keeping here.",
+        message: "Your journeys will leave something worth keeping here.",
       };
     next.home.sword = true;
     next.equipment.sword = false;

@@ -1,95 +1,61 @@
-# LAST SAVE — 3D investor demo, v0.1 development
+# LAST SAVE: AMAN
 
-**One character. Every world. Your story continues.**
+**Stories carried. Water shared.**
 
-Playable development build: **https://last-save-demo-3d.vercel.app**
+An experimental North African / Amazigh-founded direction for LAST SAVE, building on the working third-person game. This is a separate branch and Vercel project. The original main game is unchanged.
 
-Editable source: **https://github.com/hamzahelhafdaoui/last-save-demo-3d-v0.1**
+- Source: [experiment/amazigh](https://github.com/hamzahelhafdaoui/last-save-demo-3d-v0.1/tree/experiment/amazigh)
+- [Download this experiment's source](https://github.com/hamzahelhafdaoui/last-save-demo-3d-v0.1/archive/refs/heads/experiment/amazigh.zip)
+- Vercel project: `last-save-aman` / `prj_mzibNFHjMGhtnE9MEDrQ5bUXmelx`. The verified playable URL is recorded in `docs/SESSION_STATE.md` after deployment.
+- Original game: https://last-save-demo-3d.vercel.app/ — do not replace or deploy over it.
 
-[Download all committed source as ZIP](https://github.com/hamzahelhafdaoui/last-save-demo-3d-v0.1/archive/refs/heads/main.zip)
+## Playable direction
 
-This project builds directly on the earlier Last Save third-person movement study. It preserves its Rapier capsule, analog joystick, independent orbit camera and original Blender character while adding an actual connected adventure. The previous prototype and future full-game preproduction remain separate repositories/workspaces.
+**Tizi Highlands:** cedar country, stone hillside dwellings, terraced crops, a bridge, communal stores and an original fantasy dawn terrace. Help Itto restore the spring, reopen a caravan passage and reconcile two families' grain records. Choose a witnessed measure or keep disputed cells sealed while using the communal reserve. The game remembers the agreement. Carry those community records to the Dawn Terrace and claim the physical Dawnblade.
 
-**Status: an early playable development checkpoint.** The connected story systems exist; art, animation, sound, combat balance and device performance still need substantial work to reach the requested premium investor standard. See [verification and limitations](docs/QA.md), [art provenance](docs/ART_AND_LICENSES.md) and [next priorities](docs/ROADMAP.md). Do not present this as a finished full game or a completed premium-quality vertical slice.
+**Targa Oasis:** earthen fortified buildings, palms, a shaded weaving courtyard, water-gallery headworks, inspection shafts, garden channels and a shared cistern. Repair the filter, garden leak and sharing gate. Water reaches the gardens; the community gives you a woven mantle and silver clasp.
 
-## Run locally
+**Your courtyard:** a warm home with cedar beams, rugs, clay vessels, low seating, a chest, mirror, hearth and basin. Wear the oasis mantle while carrying the highland blade, then bring both stories home. The sword, silver clasp and herbalist's lamp can physically appear in your home.
 
-Use Node.js 24 (or a compatible modern Node version accepted by Vite 8).
+Kabyle, Rif and Tuareg chapters have **separate regional foundations and remain unavailable**. They are not blended into the first two playable settings. [Cultural sources, naming choices and remaining review](docs/aman/CULTURAL_FOUNDATION.md).
+
+Three inherited modes remain: forgiving Story Tour, timed Adventure, and experimental Living Quest with an herbalist errand and fantasy trail encounters. Begin with Story Tour.
+
+## Run and verify
+
+Node 24, WebGL 2, npm:
 
 ```sh
 npm ci
 npm run dev
-```
-
-Open the printed local URL. WebGL 2 is required. The first interaction unlocks audio in the browser. All game assets, fonts and music are served locally; no paid API, account, backend or database is required.
-
-```sh
 npm test
 npm run build
-npm run preview
+npm run preview -- --port 4181
 ```
 
-The production output is `dist/`.
-
-## Experience
-
-- **Story tour**: forgiving core adventure, with assisted connecting surfaces at the crossing.
-- **Adventure**: the same route with jumping gaps, a timed crossing, and failure/retry.
-- **Living quest**: an experimental traveling healer errand, reactive Hollow Warden encounter, strikes/dodges and a home lantern keepsake. Combat remains a prototype.
-
-The core route connects a customizable original character, the Wayfarer's Room, Edda's three-echo adventure in Lumenreach, Crownstone's guardian and physical Dawnwake extraction, Velvet City and its jacket, then the player's permanent home display. Save data persists across worlds and reloads on this device. The third home portal is explicitly unavailable.
-
-See [walkthrough and controls](docs/INVESTOR_WALKTHROUGH.md).
-
-## Controls
-
-WASD/arrows move; Shift sprints; Ctrl walks slowly; Space jumps; drag orbits the camera; wheel zooms; E interacts; I opens inventory; J opens journal; Escape opens the menu; H toggles HUD. Living Quest: F strikes, Q dodges. Touch uses an actual independent left analog joystick and right camera drag, plus jump/action controls.
-
-Lift the movement thumb to stop; the camera finger operates independently. Opening a menu, backgrounding the page or rotating the device releases held controls; touch the joystick again to move. In clean HUD mode, tap **Show controls** to restore the touch interface.
-
-Menu → Investor Demo Mode includes opening replay, earned sword-cinematic replay, clean HUD mode, fresh-demo reset, entrance recovery and progress export.
-
-## Architecture
-
-- React / React Three Fiber / Drei: application shell, scene host and item-view interaction.
-- Three.js: scene construction, materials, effects, character presentation and cinematic cameras.
-- Rapier: fixed-step collision and kinematic character control, retained from the original study for continuity.
-- Zustand: serializable gameplay and UI state.
-- GSAP: a sampled, deterministic cinematic timeline, advanced only while the game is visible.
-- Howler + Web Audio: original music loops and synthesized effects.
-- TypeScript / Vite: development and production builds.
-- GLB: original articulated traveler, with editable Blender authoring source.
-
-```text
-src/state/       Versioned save model, validation, quest actions, Zustand store
-src/game/        Runtime coordination, audio, cinematics, experimental encounter
-src/physics/     Rapier capsule, terrain, collision surfaces, camera raycasts
-src/input/       Keyboard, analog touch and independent camera input
-src/render/      Character, camera, reusable geometry, materials, batching, effects
-src/worlds/      Lazy-loaded home, Lumenreach and Velvet City
-src/ui/          React HUD, dialogue, wardrobe, inventory, journal, demo controls
-public/          Original character, original music, locally licensed fonts
-docs/            Handoff, QA evidence, art records and improvement priorities
-```
-
-Save key: `last-save.investor.v2`. Missing, invalid or wrong-version data starts safely. Appearance, mode, quest flags, inventory, equipment, decorations and per-world positions are validated. Unique rewards cannot be duplicated by repeating interactions. Earlier 2D/study saves are preserved under their original keys.
-
-## Browser verification
+Browser regressions (system Chromium, separate terminal):
 
 ```sh
-BASE_URL=http://localhost:4173/ CHROMIUM_PATH=/usr/bin/chromium npm run test:browser
-BASE_URL=http://localhost:4173/ node tests/cinematic.cjs
-BASE_URL=http://localhost:4173/ node tests/crossing.cjs
-BASE_URL=http://localhost:4173/ node tests/mobile.cjs
-BASE_URL=http://localhost:4173/ node tests/control-recovery.cjs
+BASE_URL=http://localhost:4181/ npm run test:browser
+BASE_URL=http://localhost:4181/ npm run test:mobile
 ```
 
-Use a stable production build/server, not Vite HMR, during long tests. Browser tests use real movement/interaction controls plus explicitly documented saved checkpoints between isolated sections. They do not constitute a continuous human playthrough or physical-device performance certification. `?debug` exposes **read-only** diagnostics; no reward/teleport mutation shortcuts are shipped.
+The AMAN playthrough uses real keyboard/UI interactions and explicit saved checkpoints between sections. It does not represent an uninterrupted human walkthrough. Main-game scripts retained in this branch are historical references unless the AMAN QA record says they were rerun.
 
-## Source preservation and hosting
+WASD/arrows move; Shift sprints; Space jumps; drag looks; wheel zooms; E interacts; I inventory; J journey book; Escape pause; H clean view. Touch uses an independent analog joystick and camera drag. Existing stuck-input recovery is retained. Use **Show controls** to restore a hidden touch HUD.
 
-GitHub `main` is connected to the dedicated `last-save-demo-3d` Vercel project. Automatic production deployments from pushes have been verified. The production alias has no expiring share token. Vercel project/team IDs and continuity requirements are in [AGENTS.md](AGENTS.md).
+## Source and save safety
 
-Commit and push every working milestone. `tools/checkpoint.sh 'Describe the checkpoint'` runs system tests/build, commits changes, pushes main and writes a local source ZIP. Verify the resulting remote deployment SHA and public game afterward. GitHub Actions independently checks tests and builds.
+Use `experiment/amazigh` only. `tools/checkpoint.sh 'Message'` checks the branch, tests/builds, commits and pushes only that branch, then writes a source ZIP. Deploy that exact SHA **only** to `last-save-aman`. This project intentionally uses explicit Git-sourced production deployments rather than linking a second project to the repository's default `main` branch. A main-branch push must never accidentally replace the experiment or vice versa.
 
-[Session handoff](docs/SESSION_STATE.md) records the last verified checkpoint and work remaining. No autonomous development or monitoring is promised after a chat session ends.
+Do not merge the experiment, change the repository default branch or deploy to the main game's Vercel project. Baseline main SHA: `c193b5d36e360522a804fe0130ff7be3ed0a03f3`.
+
+Browser save key: `last-save.aman.v1`; the original `last-save.investor.v2` is never read or overwritten. The internal versioned schema retains working identity/equipment/quest fields and adds oasis progress and granary decisions. No paid external API, account, backend or cloud save is needed.
+
+## Scope and assets
+
+React / R3F / Three / Rapier / Zustand / GSAP / Howler / TypeScript / Vite. Modular world factories; retained joystick/camera; original GLB fox traveler; new regional procedural architecture, material textures, garments, pottery and original fantasy metalwork. The human cultures inform everyday life and worldbuilding; the fox and magical devices are original fantasy.
+
+All new geometry, textures and textile-style motifs are authored in source; no museum assets or patterns were copied. New synthesized audio sketches are reproducible with `python3 tools/make-aman-audio.py` (numpy + ffmpeg). They are not traditional performances or a finished regional score. Existing asset licenses remain in `docs/ART_AND_LICENSES.md`.
+
+This is a playable direction study, not a finished cultural reconstruction, final art pass or complete full game. No claim of community consultation, native-speaker localization, physical mobile certification or 60 FPS is made. See [cultural foundations](docs/aman/CULTURAL_FOUNDATION.md) and [session status](docs/SESSION_STATE.md).

@@ -18,7 +18,7 @@ const assert = require("node:assert/strict");
     async function boot(save) {
       await p.goto(base);
       await p.evaluate(
-        (s) => localStorage.setItem("last-save.investor.v2", JSON.stringify(s)),
+        (s) => localStorage.setItem("last-save.aman.v1", JSON.stringify(s)),
         save,
       );
       await p.goto(base + "?debug");
@@ -45,7 +45,7 @@ const assert = require("node:assert/strict");
       .click({ force: true });
     await p.waitForFunction(() => window.lastSaveDebug?.().mode === "play");
     s = await p.evaluate(() =>
-      JSON.parse(localStorage.getItem("last-save.investor.v2")),
+      JSON.parse(localStorage.getItem("last-save.aman.v1")),
     );
     assert(s.sideQuest.accepted);
     s.positions.lumen = { x: -16, z: 19 };
@@ -57,7 +57,7 @@ const assert = require("node:assert/strict");
     await p.waitForFunction(
       () =>
         window.lastSaveDebug?.().quest &&
-        JSON.parse(localStorage.getItem("last-save.investor.v2")).sideQuest
+        JSON.parse(localStorage.getItem("last-save.aman.v1")).sideQuest
           .ambush,
     );
     await p.keyboard.press("f");
@@ -76,7 +76,7 @@ const assert = require("node:assert/strict");
       { timeout: 180000 },
     );
     s = await p.evaluate(() =>
-      JSON.parse(localStorage.getItem("last-save.investor.v2")),
+      JSON.parse(localStorage.getItem("last-save.aman.v1")),
     );
     assert(s.sideQuest.herbs);
     console.log("PASS encounter loss returns to the trail and retains herbs");

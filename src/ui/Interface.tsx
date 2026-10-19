@@ -6,18 +6,22 @@ import { RoomEnvironment } from "three/addons/environments/RoomEnvironment.js";
 import { useGame } from "../state/store";
 import { objective, type Appearance } from "../state/model";
 import { command } from "../game/runtime";
+import {
+  regions,
+  futureRegions,
+  glossary,
+  itemNames,
+} from "../content/regions";
+import { silverClasp, surface } from "../render/amazigh";
 import { makeSword, box } from "../render/kit";
-const itemNames: Record<string, string> = {
-  "moonfern-lantern": "Moonfern lantern",
-  dawnwake: "Dawnwake",
-  "velvet-jacket": "Velvet jacket",
-  "forest-echo": "Echo of kindness",
-  "crossing-echo": "Echo of courage",
-  "archive-echo": "Echo of belonging",
-};
 function Item({ id }: { id: string }) {
   const ref = useRef<T.Group>(null);
   const object = useMemo(() => {
+    if (id === "oasis-clasp") {
+      const g = new T.Group();
+      silverClasp(g, 0, 0, 0, 2.4);
+      return g;
+    }
     if (id === "dawnwake") {
       const g = makeSword();
       g.position.y = 0.45;
@@ -33,12 +37,13 @@ function Item({ id }: { id: string }) {
     }
     if (id === "velvet-jacket") {
       const g = new T.Group();
-      box(g, 0, 0, 0, 0.85, 0.9, 0.32, "#b78294");
-      for (const s of [-1, 1]) {
-        const arm = box(g, s * 0.58, 0.1, 0, 0.32, 0.8, 0.35, "#b78294");
-        arm.rotation.z = s * 0.25;
-        box(g, s * 0.2, 0.25, 0.2, 0.16, 0.5, 0.07, "#e7c8a3");
-      }
+      g.add(
+        new T.Mesh(
+          new T.CylinderGeometry(0.42, 0.65, 1.25, 16, 1, true),
+          surface("#4b7671", "weave"),
+        ),
+      );
+      silverClasp(g, 0, 0.3, 0.48, 0.7);
       return g;
     }
     const g = new T.Group();
@@ -130,14 +135,14 @@ function Customizer() {
     fur: string;
     hair: string;
   }[] = [
-    { id: "amber", name: "Amberkin", fur: "#bc874f", hair: "#633c2d" },
-    { id: "moon", name: "Moonfolk", fur: "#c7bfcd", hair: "#535477" },
-    { id: "russet", name: "Emberkin", fur: "#a85c43", hair: "#432d32" },
+    { id: "amber", name: "Cedar fox", fur: "#bc874f", hair: "#633c2d" },
+    { id: "moon", name: "Pale fox", fur: "#c7bfcd", hair: "#535477" },
+    { id: "russet", name: "Russet fox", fur: "#a85c43", hair: "#432d32" },
   ];
   return (
     <div className="customize">
       <div className="customize-caption">
-        <span className="eyebrow">THE ENCHANTED MIRROR</span>
+        <span className="eyebrow">THE COURTYARD MIRROR</span>
         <h2>A face for every world.</h2>
         <p>Drag the scene to turn your character.</p>
       </div>
@@ -157,7 +162,7 @@ function Customizer() {
             onChange={(e) => update({ name: e.target.value })}
           />
         </label>
-        <span className="label">Folk</span>
+        <span className="label">Appearance</span>
         <div className="preset-row">
           {presets.map((p) => (
             <button
@@ -273,10 +278,12 @@ function Inventory() {
                   {itemNames[id]}
                   <small>
                     {id === "dawnwake"
-                      ? "LEGENDARY · LUMENREACH"
+                      ? "FANTASY RELIC · TIZI HIGHLANDS"
                       : id === "velvet-jacket"
-                        ? "CLOTHING · VELVET CITY"
-                        : "MEMORY · LUMENREACH"}
+                        ? "WOVEN CLOTHING · TARGA OASIS"
+                        : id === "oasis-clasp"
+                          ? "SILVER KEEPSAKE · TARGA OASIS"
+                          : "COMMUNITY KEEPSAKE"}
                   </small>
                 </div>
               </button>
@@ -295,9 +302,9 @@ function Inventory() {
               </div>
               <span className="eyebrow">
                 {selected === "dawnwake"
-                  ? "THE SWORD THAT REMEMBERS THE DAWN."
+                  ? "A BLADE CARRYING MANY STORIES."
                   : selected === "velvet-jacket"
-                    ? "A SECOND CHAPTER, BEAUTIFULLY WORN."
+                    ? "WOVEN IN AN OASIS. WORN ON EVERY ROAD."
                     : "SOME THINGS ARE WORTH REMEMBERING."}
               </span>
               <h2>{itemNames[selected]}</h2>
@@ -315,7 +322,9 @@ function Inventory() {
                     }))
                   }
                 >
-                  {s.equipment.sword ? "Stow Dawnwake" : "Equip Dawnwake"}
+                  {s.equipment.sword
+                    ? "Stow the Dawnblade"
+                    : "Equip the Dawnblade"}
                 </button>
               )}
               {selected === "velvet-jacket" && (
@@ -333,7 +342,7 @@ function Inventory() {
                 >
                   {s.equipment.jacket
                     ? "Wear starting outfit"
-                    : "Wear Velvet jacket"}
+                    : "Wear oasis mantle"}
                 </button>
               )}
             </>
@@ -351,10 +360,7 @@ function Journal() {
   const s = useGame((g) => g.save),
     goal = objective(s);
   return (
-    <Modal
-      title="The last bell of Lumenreach."
-      overline="THE WAYFARER’S JOURNAL"
-    >
+    <Modal title="The water, the road, the trust." overline="YOUR JOURNEY BOOK">
       <p className="journal-intro">
         “We don’t lose a world when we leave it. We carry a little of it into
         the next.”
@@ -368,18 +374,18 @@ function Journal() {
         {[
           [
             "forest",
-            "Kindness",
-            "Free the little light in the moonflower grove.",
+            "Water",
+            "Open the three intake gates and record the restored spring.",
           ],
           [
             "crossing",
-            "Courage",
-            "Wake the crossing and traverse its three rune stones.",
+            "Passage",
+            "Reopen the caravan passage and recover the delivery record.",
           ],
           [
             "archive",
-            "Belonging",
-            "Reconstruct the archive’s memory: light, call, remember.",
+            "Trust",
+            "Reconcile delivery, family seals and the shared reserve; choose an agreement.",
           ],
         ].map(([id, title, detail]) => (
           <div key={id}>
@@ -393,10 +399,37 @@ function Journal() {
           </div>
         ))}
       </div>
+      {s.granaryDecision && (
+        <p className="agreement">
+          Recorded agreement:{" "}
+          {s.granaryDecision === "witnessed"
+            ? "A witnessed measure for both households."
+            : "Disputed cells sealed; the communal reserve opened."}
+        </p>
+      )}
+      <details className="region-notes">
+        <summary>Words carried on the journey</summary>
+        {glossary.map((entry) => (
+          <p key={entry.word}>
+            <b>{entry.word}</b> — {entry.meaning}.
+          </p>
+        ))}
+      </details>
+      <details className="region-notes">
+        <summary>Beyond these two doorways</summary>
+        {futureRegions.map((region) => (
+          <section key={region.name}>
+            <h3>
+              {region.name} <small>· Not yet open</small>
+            </h3>
+            <p>{region.identity}.</p>
+          </section>
+        ))}
+      </details>
       <p className="muted">
         {s.quest.sword
-          ? "Dawnwake remembers you. Velvet City is waiting."
-          : "When the echoes return, Crownstone’s guardian will ask what you remember."}
+          ? "The Dawnblade remembers your deeds. Follow the water to Targa Oasis."
+          : "Carry the water testimony, passage record and granary agreement to the Dawn Terrace."}
       </p>
     </Modal>
   );
@@ -519,8 +552,8 @@ function Pause() {
       <details className="investor">
         <summary>Investor Demo Mode</summary>
         <p className="muted">
-          Live gameplay and authored sequences. Replay unlocks after Dawnwake is
-          earned.
+          Live gameplay and authored sequences. Replay unlocks after the
+          Dawnblade is earned.
         </p>
         <div className="investor-actions">
           <button onClick={() => command("replay-opening")}>
@@ -530,7 +563,7 @@ function Pause() {
             disabled={!s.quest.sword}
             onClick={() => command("replay-sword")}
           >
-            Replay Dawnwake
+            Replay the Dawnblade
           </button>
           <button
             onClick={() => {
@@ -572,7 +605,7 @@ function Pause() {
       </details>
       <a
         className="source-link"
-        href="https://github.com/hamzahelhafdaoui/last-save-demo-3d-v0.1"
+        href="https://github.com/hamzahelhafdaoui/last-save-demo-3d-v0.1/tree/experiment/amazigh"
         target="_blank"
         rel="noreferrer"
       >
@@ -600,41 +633,45 @@ export function Interface() {
       {mode === "title" && (
         <section className="title">
           <div className="title-top">
-            <span>AN ORIGINAL ADVENTURE</span>
-            <span>THE FIRST CHAPTER</span>
+            <span>AMAN · AN ALTERNATE CHAPTER</span>
+            <span>ATLAS HIGHLANDS & SOUTHERN OASIS</span>
           </div>
           <div className="title-body">
-            <span className="eyebrow">SOMEWHERE, A WORLD IS WAITING.</span>
-            <h1>LAST SAVE</h1>
-            <p>Every world leaves a mark.</p>
+            <span className="eyebrow">STORIES CARRIED. WATER SHARED.</span>
+            <h1>
+              LAST SAVE<span className="aman-title">AMAN</span>
+            </h1>
+            <p>Every place stays with you.</p>
             <button className="primary" onClick={() => command("start")}>
-              {s.created ? "Continue your story" : "Begin adventure"}{" "}
+              {s.created ? "Continue your story" : "Begin the journey"}{" "}
               <span>→</span>
             </button>
-            <small>Best experienced with headphones.</small>
+            <small>
+              An original North African and Amazigh-inspired fantasy.
+            </small>
           </div>
           <div
             className="experience-select"
             role="group"
             aria-label="Choose experience"
           >
-            <span className="eyebrow">CHOOSE YOUR FIRST CHAPTER</span>
+            <span className="eyebrow">CHOOSE YOUR PACE</span>
             {(
               [
                 [
                   "tour",
                   "Story tour",
-                  "A forgiving journey through worlds and memories.",
+                  "A welcoming journey. Explore, help and bring your stories home.",
                 ],
                 [
                   "adventure",
                   "Adventure",
-                  "The same story. Timed challenges and real retries.",
+                  "The same communities. A timed passage, real retries.",
                 ],
                 [
                   "quest",
                   "Living quest",
-                  "A traveling errand, an ambush, and a gift for home.",
+                  "An herbalist’s errand, trail encounters and a keepsake.",
                 ],
               ] as const
             ).map(([id, title, detail]) => (
@@ -663,7 +700,7 @@ export function Interface() {
           <div>
             <span className="eyebrow">
               {s.world === "lumen"
-                ? "LUMENREACH"
+                ? "TIZI HIGHLANDS"
                 : s.world === "city"
                   ? "ANOTHER WORLD. THE SAME YOU."
                   : "YOUR PERMANENT SANCTUARY"}
@@ -674,7 +711,7 @@ export function Interface() {
         <div className="objective">
           <span className="eyebrow">
             {s.quest.accepted && !s.quest.sword
-              ? `${s.quest.echoes.length} / 3 ECHOES`
+              ? `${s.quest.echoes.length} / 3 COMMUNITY RECORDS`
               : "YOUR STORY"}
           </span>
           <h3>{goal.title}</h3>
@@ -805,6 +842,14 @@ export function Interface() {
               {g.dialogue.button}
               <span>→</span>
             </button>
+            {g.dialogue.alternate && (
+              <button
+                className="dialogue-alternate"
+                onClick={() => command("dialogue-alternate")}
+              >
+                {g.dialogue.alternate.label}
+              </button>
+            )}
           </section>
         </div>
       )}
@@ -838,7 +883,9 @@ export function Interface() {
               ) : (
                 <>
                   <span className="eyebrow">YOUR STORY CONTINUES.</span>
-                  <h1>LAST SAVE</h1>
+                  <h1>
+                    LAST SAVE<span className="aman-title">AMAN</span>
+                  </h1>
                 </>
               )}
             </div>
@@ -846,14 +893,14 @@ export function Interface() {
           {g.cinematic === "arrival" && (
             <div className="cinematic-caption">
               <span className="eyebrow">BEYOND THE FIRST DOOR</span>
-              <h1>Lumenreach</h1>
+              <h1>Tizi Highlands</h1>
             </div>
           )}
           {g.cinematic === "dawnwake" && (
             <div className="cinematic-caption">
               <span className="eyebrow">
                 {g.cinematicTime < 8
-                  ? "A MEMORY OLDER THAN THE KINGDOM"
+                  ? "A STORY KEPT BY MANY HANDS"
                   : g.cinematicTime < 22
                     ? "SOME THINGS REFUSE TO BE FORGOTTEN."
                     : "THE DAWN REMEMBERS YOU."}
@@ -875,12 +922,12 @@ export function Interface() {
       )}
       {mode === "reveal" && (
         <div className="reveal">
-          <span className="eyebrow">LEGENDARY WEAPON ACQUIRED</span>
+          <span className="eyebrow">A STORY WORTH CARRYING</span>
           <div className="reveal-model">
             <ItemView id="dawnwake" />
           </div>
-          <h1>DAWNWAKE</h1>
-          <p>“The sword that remembers the dawn.”</p>
+          <h1>THE DAWNBLADE</h1>
+          <p>“The work of many hands. The beginning of another story.”</p>
           <button className="primary" onClick={() => command("reveal-close")}>
             Carry it into the next world <span>→</span>
           </button>
@@ -894,7 +941,7 @@ export function Interface() {
           <button className="primary" onClick={() => location.reload()}>
             Reload the game
           </button>
-          <a href="https://github.com/hamzahelhafdaoui/last-save-demo-3d-v0.1">
+          <a href="https://github.com/hamzahelhafdaoui/last-save-demo-3d-v0.1/tree/experiment/amazigh">
             Source code & issues ↗
           </a>
         </div>

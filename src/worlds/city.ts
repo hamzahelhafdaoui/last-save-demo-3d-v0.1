@@ -1,273 +1,321 @@
-import { batchStatic } from "../render/optimize";
 import * as T from "three";
 import { Physics } from "../physics/world";
 import {
   box,
-  ball,
   cyl,
   mesh,
   mat,
   text,
-  lantern,
   portal,
   Motes,
   disposeScene,
 } from "../render/kit";
 import {
-  resident,
-  animateResidents,
-  updatePortals,
-  type Resident,
-} from "./common";
-import type { World } from "./types";
+  dwelling,
+  palm,
+  pottery,
+  channel,
+  awning,
+  rug,
+  slab,
+  surface,
+  silverClasp,
+} from "../render/amazigh";
+import { batchStatic } from "../render/optimize";
+import { resident, animateResidents, updatePortals } from "./common";
+import type { World, Hotspot } from "./types";
 export async function createWorld(): Promise<World> {
   const scene = new T.Scene(),
-    physics = new Physics(() => 0, 25);
-  scene.background = new T.Color("#0b1028");
-  scene.fog = new T.FogExp2("#11152e", 0.014);
-  scene.add(new T.HemisphereLight("#6a76bf", "#29253e", 1.4));
-  const sun = new T.DirectionalLight("#b3baff", 1.3);
-  sun.position.set(-10, 24, 12);
+    physics = new Physics(() => 0, 25),
+    hot: Hotspot[] = [];
+  scene.background = new T.Color("#d2b58d");
+  scene.fog = new T.FogExp2("#d5bc94", 0.011);
+  scene.add(new T.HemisphereLight("#dce1d1", "#906044", 2.2));
+  const sun = new T.DirectionalLight("#ffe1a1", 3.7);
+  sun.position.set(-18, 30, 12);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(1024, 1024);
+  sun.shadow.mapSize.set(1536, 1536);
   Object.assign(sun.shadow.camera, {
-    left: -26,
-    right: 26,
-    top: 30,
-    bottom: -30,
-    far: 80,
+    left: -35,
+    right: 35,
+    top: 35,
+    bottom: -35,
+    far: 90,
   });
+  sun.shadow.normalBias = 0.06;
   scene.add(sun);
-  const pavement = mesh(
+  const ground = mesh(
     scene,
-    new T.PlaneGeometry(70, 70),
-    new T.MeshStandardMaterial({
-      color: "#232b43",
-      roughness: 0.19,
-      metalness: 0.55,
-    }),
+    new T.PlaneGeometry(220, 220, 70, 70),
+    surface("#cbb088"),
   );
-  pavement.rotation.x = -Math.PI / 2;
-  for (let z = -24; z <= 24; z += 2) {
-    box(scene, 0, 0.015, z, 18, 0.025, 0.025, "#45435b");
-    for (const x of [-8, 8]) box(scene, x, 0.09, z, 2, 0.18, 1.95, "#45425b");
+  ground.rotation.x = -Math.PI / 2;
+  ground.castShadow = false;
+  // Earthen fortified silhouettes belong to this southern oasis chapter.
+  for (const [x, z, w, d, h] of [
+    [-16, -16, 8, 7, 10],
+    [17, -18, 7, 6, 12],
+    [-17, -2, 7, 7, 7],
+    [18, 3, 7, 7, 9],
+    [-16, 16, 7, 7, 6],
+    [16, 19, 7, 7, 8],
+    [-2, -22, 10, 5, 7],
+  ])
+    dwelling(scene, physics, x, 0, z, w, d, h, true);
+  for (let i = 0; i < 16; i++) {
+    const a = (i / 16) * Math.PI * 2,
+      x = Math.sin(a) * 22,
+      z = Math.cos(a) * 22;
+    palm(scene, x, 0, z, 0.85 + (i % 3) * 0.16);
+    if (i % 3 === 0) physics.tree(x, 0, z, 0.25, 6);
   }
-  for (let i = 0; i < 8; i++) {
-    const z = -24 + i * 7;
-    for (const s of [-1, 1]) {
-      const x = s * (12 + (i % 2) * 1.4),
-        h = 9 + (i % 3) * 5;
-      box(scene, x, h / 2, z, 6, h, 6, "#252c48");
-      physics.box(x, h / 2, z, 3, h / 2, 3);
-      box(scene, x, h - 0.4, z, 6.3, 0.22, 6.3, "#5c536f");
-      for (let f = 1; f < h / 2; f++)
-        for (let w = 0; w < 3; w++) {
-          const window = box(
-            scene,
-            x - s * 3.03,
-            f * 2,
-            z - 1.8 + w * 1.8,
-            0.055,
-            1.1,
-            0.7,
-            (f + w + i) % 4 ? "#6877a0" : "#d6ac86",
-          );
-          (window.material as T.MeshStandardMaterial).emissiveIntensity =
-            (f + w + i) % 4 ? 0.45 : 1.1;
-        }
-      const color = i % 2 ? "#b37ddd" : "#6ad1d8";
-      box(scene, x - s * 3.1, 3.7, z, 0.06, 0.09, 5.8, color);
-    }
-  }
-  // Original boutique facade and an open invitation, framed with silk-colored light.
-  const boutique = new T.Group();
-  boutique.position.set(-8.6, 0, -8);
-  scene.add(boutique);
-  box(boutique, 0, 2.6, 0, 0.3, 5.2, 6.2, "#6c486b");
-  box(boutique, 0.2, 1.8, 0, 0.1, 3.2, 4.4, "#2c263f");
-  for (const z of [-2.6, 2.6])
-    box(boutique, 0.35, 2.8, z, 0.1, 4.5, 0.07, "#e8a2d4");
-  const sign = text(boutique, "VELVET ATELIER", 0.5, 5.1, 0, 5, "#f2b4df");
-  sign.rotation.y = Math.PI / 2;
-  const hanging = text(scene, "V E L V E T", -6, 5, -10, 4, "#ef9ed8");
-  hanging.rotation.y = 0.3;
-  // A visible jacket in the shop window makes the collectible concrete.
-  const jacket = new T.Group();
-  jacket.position.set(-7.9, 1.65, -8);
-  scene.add(jacket);
-  box(jacket, 0, 0.6, 0, 0.85, 0.9, 0.32, "#c08e9c");
-  for (const s of [-1, 1]) {
-    const sleeve = box(jacket, s * 0.58, 0.65, 0, 0.32, 0.8, 0.35, "#b78294");
-    sleeve.rotation.z = s * 0.25;
-    box(jacket, s * 0.2, 0.85, 0.2, 0.16, 0.5, 0.07, "#e7c8a3");
-  }
-  cyl(jacket, 0, -0.1, 0, 0.035, 0.9, "#b8a4b5");
-  cyl(jacket, 0, -0.58, 0, 0.55, 0.05, "#4e4661");
-  jacket.rotation.y = Math.PI / 2;
-  const lit = new T.PointLight("#ed84c4", 22, 14, 2);
-  lit.position.set(-6, 3, -8);
-  scene.add(lit);
-  const teal = new T.PointLight("#6be4e4", 24, 16, 2);
-  teal.position.set(7, 4, 4);
-  scene.add(teal);
-  for (const [x, z, c] of [
-    [-6, 7, "#ee9ac9"],
-    [6, 1, "#7fe2e3"],
-    [-6, -16, "#d6aeff"],
-    [6, -20, "#edb881"],
-  ] as [number, number, string][]) {
-    cyl(scene, x, 2.4, z, 0.055, 4.8, "#4b4965");
-    lantern(scene, x, 4.7, z, c);
-    const pool = mesh(
-      scene,
-      new T.CircleGeometry(3.3, 32),
-      new T.MeshBasicMaterial({
-        color: c,
-        transparent: true,
-        opacity: 0.09,
-        depthWrite: false,
-        blending: T.AdditiveBlending,
-      }),
-      [x, 0.025, z],
-    );
-    pool.rotation.x = -Math.PI / 2;
-  }
-  for (let i = 0; i < 4; i++) {
-    const z = -2 + i * 5,
-      x = 5.5;
-    cyl(scene, x, 0.72, z, 0.8, 0.12, "#756179");
-    for (const dx of [-1.2, 1.2]) {
-      cyl(scene, x + dx, 0.45, z, 0.35, 0.1, "#a0858a");
-      box(scene, x + dx, 0.65, z + 0.2, 0.6, 0.6, 0.1, "#614960");
-    }
-    cyl(scene, x, 1.8, z, 0.035, 3.6, "#ba9f8d");
-    const umbrella = mesh(
-      scene,
-      new T.ConeGeometry(1.7, 0.55, 12),
-      mat(i % 2 ? "#795a88" : "#64758d"),
-      [x, 3.25, z],
-    );
-    cyl(scene, x, 0.9, z, 0.08, 0.24, "#dfbeab");
-  }
-  for (const x of [-7.4, 7.4])
-    for (const z of [-19, -1, 15]) {
-      box(scene, x, 0.4, z, 1.3, 0.8, 1.3, "#565067");
-      for (let i = 0; i < 7; i++) {
-        const leaf = mesh(
-          scene,
-          new T.SphereGeometry(0.7, 12, 8),
-          mat("#427e71"),
-          [x + Math.sin(i) * 0.25, 1 + (i % 3) * 0.2, z + Math.cos(i) * 0.2],
-        );
-        leaf.scale.set(0.5, 1.1, 0.5);
-      }
-    }
-  const cafe = text(scene, "MOON / MILK", 8, 4.4, 5, 4, "#8ddedc");
-  cafe.rotation.y = -Math.PI / 2;
-  text(scene, "THE NIGHT IS YOURS", 0, 7, -23, 12, "#ad9ed6");
-  // A distant skyline uses pooled silhouettes and lit windows beyond the physical street.
-  for (let i = 0; i < 20; i++) {
-    const x = -60 + i * 6.5,
-      h = 12 + ((i * 7) % 23);
-    box(
-      scene,
-      x,
-      h / 2,
-      -42 - (i % 3) * 5,
-      4,
-      h,
-      5,
-      i % 2 ? "#171b37" : "#232345",
-    );
-    for (let j = 0; j < 7; j++)
-      box(
-        scene,
-        x,
-        h * 0.15 + j * h * 0.1,
-        -39.4 - (i % 3) * 5,
-        2,
-        0.15,
-        0.02,
-        j % 3 ? "#806eab" : "#598baf",
-      );
-  }
-  const home = portal(scene, 0, 0, 16, "#d5b18c", "THE WAYFARER’S ROOM");
-  home.rotation.y = Math.PI;
-  const lumen = portal(scene, 0, 0, -23, "#8cdbbb", "LUMENREACH");
-  physics.cameraPanel(0, 0, 16);
-  physics.cameraPanel(0, 0, -23);
-  const residents: Resident[] = await Promise.all([
-    resident(scene, -5, 0, -7, "#bd879c", 1),
-    resident(scene, 2, 0, 3, "#4b6b82", 2, true),
-    resident(scene, -3, 0, -14, "#72547d", 3, true),
-    resident(scene, 4, 0, -11, "#c39c77", 4, true),
-    resident(scene, -3, 0, 9, "#516e71", 5, true),
+  for (const [x, z] of [
+    [7, -12],
+    [14, -8],
+    [9, 4],
+    [-11, -13],
+    [-10, 8],
+    [6, 17],
+  ])
+    palm(scene, x, 0, z, 1.05);
+  // A courtyard for weaving, water records, conversation and low seating.
+  awning(scene, -7, 3, -7, 7, 6, "#86684d");
+  rug(scene, -7, 0.06, -7, 5.5, 4.5, "#8f5947");
+  for (const x of [-10, -4])
+    slab(scene, x, 0.4, -7, 1, 0.75, 4, "#ab8e6c", "weave");
+  const loom = new T.Group();
+  loom.position.set(-8.5, 0, -10);
+  scene.add(loom);
+  for (const x of [-1, 1]) box(loom, x, 1.4, 0, 0.12, 2.8, 0.16, "#70533b");
+  for (const y of [0.3, 2.7]) box(loom, 0, y, 0, 2.3, 0.14, 0.18, "#72593c");
+  slab(loom, 0, 1.5, 0.02, 1.65, 2, 0.04, "#426d6a", "weave");
+  for (let i = 0; i < 14; i++)
+    box(loom, -0.85 + i * 0.13, 1.5, 0.06, 0.014, 2.5, 0.014, "#d6c398");
+  for (let i = 0; i < 8; i++)
+    pottery(scene, -10 + i * 0.6, 0, -3, 0.8 + (i % 2) * 0.25, "#b97950");
+  const residents = await Promise.all([
+    resident(scene, -6, 0, -8, "#b8a078", 0),
+    resident(scene, -9, 0, -6, "#4f7772", 1),
+    resident(scene, 6, 0, 5, "#ae7751", 2, true),
+    resident(scene, 4, 0, -15, "#b3ae8a", 3, true),
+    resident(scene, -10, 0, 8, "#91765f", 4),
   ]);
-  for (const n of residents)
-    n.actor.appearance(
-      {
-        name: "Resident",
-        preset: "moon",
-        fur: "#b9a8bd",
-        hair: "#4b4058",
-        hairStyle: n.phase % 3,
-        eyes: "#4d7d8c",
-        primary: "#494564",
-        secondary: "#c89eac",
-        accessory: false,
-      },
-      true,
-      false,
+  text(scene, "THE WEAVING COURTYARD", -6, 4.5, -8, 7, "#f1e0bb");
+  text(scene, "TARGA", 0, 6, -20, 10, "#f7e7c2");
+  hot.push({
+    id: "sable",
+    position: new T.Vector3(-6, 0, -7),
+    label: "Speak with the channel keeper",
+    radius: 3,
+  });
+  // Khettara-inspired gallery outlet. This surface scene shows headworks and
+  // inspection shafts; it does not pretend an underground tunnel is playable.
+  slab(scene, 11, 0.6, -17, 6, 1.2, 4, "#b77c53");
+  box(scene, 10, 1.3, -15, 1.2, 1.7, 0.08, "#534632");
+  for (let i = 0; i < 5; i++) {
+    const z = -24 - i * 5,
+      x = 11 + i * 0.3;
+    cyl(scene, x, 0.15, z, 0.65, 0.3, "#937653", 0.85, 12);
+    cyl(scene, x, 0.3, z, 0.4, 0.03, "#4c4936", 0.4, 12);
+  }
+  const garden = new T.Group();
+  scene.add(garden);
+  for (let i = 0; i < 4; i++) {
+    slab(scene, 8, 0.12, -4 + i * 3, 8, 0.24, 2, "#887c50");
+    for (let j = 0; j < 9; j++) {
+      const sprout = mesh(
+        garden,
+        new T.ConeGeometry(0.16, 0.65, 5),
+        mat(i % 2 ? "#6f8f50" : "#849c54"),
+        [5 + j * 0.75, 0.48, -4 + i * 3],
+      );
+      sprout.rotation.z = Math.sin(j) * 0.15;
+    }
+  }
+  const channels = [
+    channel(
+      scene,
+      new T.Vector3(10, 0.08, -15),
+      new T.Vector3(12, 0.08, 0),
+      0.75,
+    ),
+    channel(scene, new T.Vector3(12, 0.08, 0), new T.Vector3(3, 0.08, 0), 0.75),
+    channel(scene, new T.Vector3(3, 0.08, 0), new T.Vector3(1, 0.08, -6), 0.75),
+    channel(
+      scene,
+      new T.Vector3(1, 0.08, -6),
+      new T.Vector3(-3, 0.08, -12),
+      0.65,
+    ),
+  ];
+  // Walk-over planks let the player cross channels without getting trapped.
+  for (const [x, z, w, d] of [
+    [7, 0, 2.5, 2],
+    [1, -7, 2, 2.6],
+    [11, -7, 3, 2],
+  ]) {
+    slab(scene, x, 0.29, z, w, 0.15, d, "#a79672", "stone");
+    physics.box(x, 0.29, z, w / 2, 0.075, d / 2);
+  }
+  const basin = cyl(scene, 0, 0.12, -1, 2, 0.25, "#9b8f6e", 2.1, 32);
+  const basinWater = mesh(
+    scene,
+    new T.CircleGeometry(1.8, 40),
+    new T.MeshPhysicalMaterial({
+      color: "#579e96",
+      roughness: 0.18,
+      metalness: 0.15,
+      clearcoat: 1,
+    }),
+    [0, 0.27, -1],
+  );
+  basinWater.rotation.x = -Math.PI / 2;
+  basinWater.castShadow = false;
+  const repairs = [
+    new T.Vector3(10, 0, -15),
+    new T.Vector3(12, 0, 0),
+    new T.Vector3(1, 0, -6),
+  ];
+  const repairObjects: T.Group[] = [];
+  for (const [i, p] of repairs.entries()) {
+    const g = new T.Group();
+    g.position.copy(p);
+    scene.add(g);
+    if (i === 0) {
+      for (let j = 0; j < 5; j++)
+        box(g, -0.4 + j * 0.2, 0.65, 0, 0.07, 1, 0.12, "#867450");
+    }
+    if (i === 1) {
+      box(g, 0, 0.3, 0, 0.7, 0.4, 1.3, "#897857");
+      box(g, 0, 0.55, 0, 0.8, 0.1, 0.7, "#bd946b");
+    }
+    if (i === 2) {
+      for (const x of [-0.5, 0.5])
+        slab(g, x, 0.6, 0, 0.15, 1.2, 0.25, "#a58c66", "stone");
+      box(g, 0, 0.5, 0, 0.85, 0.9, 0.12, "#725f43");
+    }
+    text(
+      g,
+      ["HEADWORKS", "GARDEN CHANNEL", "SHARED CISTERN"][i],
+      0,
+      2.1,
+      0,
+      3.5,
     );
-  text(scene, "SABLE", -5, 2.35, -7, 2, "#f0b9d9");
-  const motes = new Motes(scene, 75, 45, "#a6a7e6");
+    repairObjects.push(g);
+    hot.push({
+      id: "oasis-repair-" + i,
+      position: p.clone().add(new T.Vector3(0, 0, 1.2)),
+      label: [
+        "Clear the headworks filter",
+        "Seal the garden channel",
+        "Open the sharing gate",
+      ][i],
+      radius: 2.6,
+      visible: (s) => s.oasis.accepted && !s.oasis.repairs.includes(i),
+    });
+  }
+  const gift = new T.Group();
+  gift.position.set(-4.2, 1.4, -7);
+  scene.add(gift);
+  silverClasp(gift, 0, 0, 0, 1.3);
+  text(scene, "WATER FOR EVERY COURTYARD", 0, 3, -6, 6);
+  const doorway = portal(scene, 0, 0, 14, "#d3b880", "THE COURTYARD");
+  doorway.scale.setScalar(0.8);
+  physics.cameraPanel(0, 0, 14);
+  hot.push({
+    id: "portal-home",
+    position: new T.Vector3(0, 0, 12),
+    label: "Bring your stories home",
+    radius: 2.7,
+  });
+  const atlas = portal(scene, -8, 0, 14, "#8cae8c", "TIZI HIGHLANDS");
+  atlas.scale.setScalar(0.65);
+  physics.cameraPanel(-8, 0, 14);
+  hot.push({
+    id: "portal-lumen",
+    position: new T.Vector3(-8, 0, 12),
+    label: "Return to Tizi Highlands",
+    radius: 2.7,
+  });
+  // Rocky Saharan horizon and dunes beyond the protected playable gardens.
+  for (let i = 0; i < 18; i++) {
+    const a = (i / 18) * Math.PI * 2,
+      x = Math.sin(a) * 80,
+      z = Math.cos(a) * 80;
+    const dune = mesh(
+      scene,
+      new T.SphereGeometry(1, 16, 8),
+      mat(i % 2 ? "#c39b70" : "#d0ad7b"),
+      [x, -2, z],
+    );
+    dune.scale.set(28, 8 + (i % 4) * 2, 15);
+    dune.rotation.y = a;
+    if (i % 3 === 0) {
+      const rock = mesh(
+        scene,
+        new T.CylinderGeometry(7, 12, 20 + (i % 4) * 3, 6),
+        mat("#a68b6b"),
+        [x * 1.5, 8, z * 1.5],
+      );
+      rock.rotation.y = a;
+    }
+  }
+  const motes = new Motes(scene, 75, 45, "#efc58d");
   batchStatic(scene, [
-    home,
-    lumen,
-    jacket,
+    doorway,
+    atlas,
+    garden,
+    basinWater,
+    gift,
     motes.object,
-    ...residents.map((n) => n.actor.root),
+    ...channels.map((c) => c.water),
+    ...repairObjects,
+    ...residents.map((r) => r.actor.root),
   ]);
   return {
     id: "city",
     scene,
     physics,
-    spawn: [0, 11],
+    spawn: [0, 9],
     sun,
-    interactions: [
-      {
-        id: "sable",
-        position: new T.Vector3(-5, 0, -5.5),
-        label: "Talk to Sable",
-        radius: 3,
-      },
-      {
-        id: "boutique",
-        position: new T.Vector3(-6, 0, -9),
-        label: "Try the Velvet jacket",
-        radius: 2.8,
-      },
-      {
-        id: "portal-home",
-        position: new T.Vector3(0, 0, 13),
-        label: "Bring your story home",
-      },
-      {
-        id: "portal-lumen",
-        position: new T.Vector3(0, 0, -21),
-        label: "Return to Lumenreach",
-      },
-    ],
+    interactions: hot,
     update(t, dt, s) {
       animateResidents(residents, t, dt);
       updatePortals(scene, t);
       motes.update(t);
-      jacket.rotation.y = Math.PI / 2 + Math.sin(t * 0.35) * 0.15;
-      lit.intensity = 22 + Math.sin(t * 0.7);
+      channels.forEach(
+        (c, i) =>
+          (c.water.visible =
+            i === 0
+              ? s.oasis.repairs.includes(0)
+              : i === 1
+                ? s.oasis.repairs.includes(0) && s.oasis.repairs.includes(1)
+                : s.oasis.restored),
+      );
+      basinWater.visible = s.oasis.restored;
+      garden.scale.y = T.MathUtils.damp(
+        garden.scale.y,
+        s.oasis.restored ? 1 : 0.35,
+        3,
+        dt,
+      );
+      gift.visible = s.oasis.restored && !s.inventory.includes("oasis-clasp");
+      repairObjects.forEach((o, i) => {
+        if (i === 0) o.rotation.z = s.oasis.repairs.includes(0) ? 0.15 : 0;
+        if (i === 2)
+          o.position.y = T.MathUtils.damp(
+            o.position.y,
+            s.oasis.repairs.includes(2) ? 1 : 0,
+            4,
+            dt,
+          );
+      });
+      scene.userData.waterRestored = s.oasis.restored;
     },
     dispose() {
-      physics.dispose();
       disposeScene(scene);
+      physics.dispose();
     },
   };
 }

@@ -18,7 +18,7 @@ const assert = require("node:assert/strict");
     await p.goto(base);
     await p.evaluate(() =>
       localStorage.setItem(
-        "last-save.investor.v2",
+        "last-save.aman.v1",
         JSON.stringify({
           version: 2,
           created: true,
