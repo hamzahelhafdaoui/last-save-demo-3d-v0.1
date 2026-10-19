@@ -1,5 +1,6 @@
 import * as T from "three";
 import { Physics } from "../physics/world";
+import { walkoverSurface } from "../simulation/walkover";
 import {
   box,
   cyl,
@@ -154,8 +155,13 @@ export async function createWorld(): Promise<World> {
     [1, -7, 2, 2.6],
     [11, -7, 3, 2],
   ]) {
-    slab(scene, x, 0.29, z, w, 0.15, d, "#a79672", "stone");
-    physics.box(x, 0.29, z, w / 2, 0.075, d / 2);
+    const { vertices, indices } = walkoverSurface(x, z, w, d),
+      g = new T.BufferGeometry();
+    g.setAttribute("position", new T.Float32BufferAttribute(vertices, 3));
+    g.setIndex(indices);
+    g.computeVertexNormals();
+    mesh(scene, g, surface("#a79672", "stone"));
+    physics.surface(vertices, indices);
   }
   const basin = cyl(scene, 0, 0.12, -1, 2, 0.25, "#9b8f6e", 2.1, 32);
   const basinWater = mesh(

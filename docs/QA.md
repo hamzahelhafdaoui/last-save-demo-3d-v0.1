@@ -1,3 +1,5 @@
+> Historical main-game verification. This branch is the AMAN experiment; see [current AMAN QA](aman/QA.md). Do not apply the original game’s old place/quest labels to this build.
+
 # Verification — development checkpoint, 2026-10-16
 
 ## Input recovery patch, 2026-10-17

@@ -2,6 +2,7 @@ import { test, before } from "node:test";
 import assert from "node:assert/strict";
 import RAPIER from "@dimforge/rapier3d-compat";
 import { Physics } from "../src/physics/world";
+import { walkoverSurface } from "../src/simulation/walkover";
 import { ground } from "../src/simulation/terrain";
 before(async () => {
   await RAPIER.init();
@@ -92,5 +93,15 @@ test("teleport clears queued jumps, stale ground contact and movement velocity",
   );
   settle(p);
   assert(p.grounded);
+  p.dispose();
+});
+
+test("oasis walkovers have matching gentle slopes that the actual capsule can cross", () => {
+  const p = new Physics(() => 0);
+  const { vertices, indices } = walkoverSurface(7, 21, 3, 2);
+  p.surface(vertices, indices);
+  settle(p);
+  for (let i = 0; i < 180; i++) p.step(0, -1, 3, false, 1 / 60);
+  assert(p.position.z < 19, "the stone crossing must not act as a hidden wall");
   p.dispose();
 });

@@ -6,7 +6,7 @@ An experimental North African / Amazigh-founded direction for LAST SAVE, buildin
 
 - Source: [experiment/amazigh](https://github.com/hamzahelhafdaoui/last-save-demo-3d-v0.1/tree/experiment/amazigh)
 - [Download this experiment's source](https://github.com/hamzahelhafdaoui/last-save-demo-3d-v0.1/archive/refs/heads/experiment/amazigh.zip)
-- Vercel project: `last-save-aman` / `prj_mzibNFHjMGhtnE9MEDrQ5bUXmelx`. The verified playable URL is recorded in `docs/SESSION_STATE.md` after deployment.
+- Vercel project: `last-save-aman` / `prj_mzibNFHjMGhtnE9MEDrQ5bUXmelx`. Published development URL: **https://last-save-aman.vercel.app/**. Verification and remaining limits are recorded in `docs/aman/QA.md`.
 - Original game: https://last-save-demo-3d.vercel.app/ — do not replace or deploy over it.
 
 ## Playable direction

@@ -319,9 +319,8 @@ const base = process.env.BASE_URL || "http://localhost:4184/";
         equipment: { sword: true },
         positions: { lumen: { x: 8, z: -23 } },
       };
-      await boot(s);
     }
-    s = await readSave();
+    if (!process.env.FROM_OASIS) s = await readSave();
     s.positions.lumen = { x: 8, z: -23 };
     await boot(s);
     await interact("portal-city");

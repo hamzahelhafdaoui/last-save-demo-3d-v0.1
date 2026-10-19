@@ -4,7 +4,7 @@ User authorized a separate North African / Amazigh experiment on 2026-10-19. Thi
 
 Never push this experiment to `main`, merge it, change the repository default branch, or deploy it to the main `last-save-demo-3d` Vercel project. Original main baseline: `c193b5d36e360522a804fe0130ff7be3ed0a03f3`. Verify it remains unchanged at the end.
 
-Use the separate `last-save-aman` Vercel project and a permanent URL. Commit and push every working milestone to `experiment/amazigh`, including source, original assets, tests, cultural references and handoff documentation. Never commit secrets, node_modules, .vercel or test caches. Never use the inherited checkpoint script until it is changed to enforce this branch and project.
+Use only Vercel project `last-save-aman` (`prj_mzibNFHjMGhtnE9MEDrQ5bUXmelx`, team `team_d4BewpL5N0r6VeQQlyUhOjxt`) and its permanent URL https://last-save-aman.vercel.app/ . Commit and push every working milestone to `experiment/amazigh`, including source, original assets, tests, cultural references and handoff documentation. Never commit secrets, node_modules, .vercel or test caches. Never use the inherited checkpoint script until it is changed to enforce this branch and project.
 
 Keep this experiment's browser save namespace separate from the original game. Do not import or overwrite main saves automatically. Preserve the joystick recovery fixes and actual third-person movement/camera.
 
