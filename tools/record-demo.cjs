@@ -164,7 +164,8 @@ async function living(){
   await p.getByText(/HOLLOW WARDENS · [123] REMAIN/).waitFor();await screenshot('ambush');
   await chapter('Hollow Wardens — fighting, dodging and recovery');
   // Real strikes and movement: rotate through every facing while enemies approach.
-  for(let i=0;i<120;i++){
+  const combatBudget=Number(process.env.COMBAT_LOOPS || 30);
+  for(let i=0;i<combatBudget;i++){
     const state=await save();if(state.sideQuest.defeated)break;
     const d=await debug();
     if(i%5===0){console.log('COMBAT',i,await p.locator('.encounter-hud').innerText().catch(()=>''));await screenshot('combat-current');}

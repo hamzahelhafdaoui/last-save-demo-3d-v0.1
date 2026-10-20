@@ -1,0 +1,213 @@
+{
+  "source": "https://last-save-demo-3d.vercel.app/",
+  "gameCommit": "c193b5d36e360522a804fe0130ff7be3ed0a03f3",
+  "duration": 1103.141016,
+  "bytes": 242541183,
+  "sha256": "99295d331d7f81eed091c4569ce9c0083203c7c408a37a00de82194745866e3b",
+  "chapters": 22,
+  "parts": [
+    {
+      "source": "https://last-save-demo-3d.vercel.app/",
+      "part": "story",
+      "width": 960,
+      "height": 600,
+      "chapters": [
+        {
+          "title": "Opening — full cinematic",
+          "time": 0.015
+        },
+        {
+          "title": "Character creation",
+          "time": 23.504
+        },
+        {
+          "title": "The Wayfarer’s Room — mirror, journal, wardrobe and portals",
+          "time": 40.906
+        },
+        {
+          "title": "Lumenreach arrival and Bellhaven",
+          "time": 111.915
+        },
+        {
+          "title": "Kindness — the moonflower grove",
+          "time": 160.785
+        },
+        {
+          "title": "Courage — the entire ancient crossing",
+          "time": 224.531
+        },
+        {
+          "title": "Crossing exit — route recovery",
+          "time": 286.027
+        }
+      ],
+      "errors": [],
+      "notes": [
+        "Preserve this actual opening-to-crossing recording, including the blocked return route. Continue from the earned failure save in story-end. This part is not represented as a completed full run.",
+        "Export ends before prolonged recorder navigation attempts. Every earned quest interaction preceding this point remains; subsequent capture resumes the actual earned save."
+      ],
+      "startedAt": "2026-10-20T00:07:42.011Z",
+      "trimStart": 6.971,
+      "failure": "Error: Blocked navigation {\"at\":{\"x\":-37.441532135009766,\"y\":2.832133722305298,\"z\":-38.37009811401367},\"to\":[-37,-37]}",
+      "recordedSeconds": 310.892,
+      "includeRecordedPart": true,
+      "exportSeconds": 286
+    },
+    {
+      "source": "https://last-save-demo-3d.vercel.app/",
+      "part": "story-end",
+      "width": 960,
+      "height": 600,
+      "chapters": [
+        {
+          "title": "Continue earned story — crossing exit recovery",
+          "time": 0.07
+        },
+        {
+          "title": "Belonging — the memory archive",
+          "time": 4.195
+        },
+        {
+          "title": "Crownstone Sanctuary and the guardian",
+          "time": 99.107
+        }
+      ],
+      "errors": [],
+      "notes": [
+        "Continues the actually earned first-part save after a blocked return ledge stopped the recorder. No progress or rewards were added.",
+        "Export ends before prolonged recorder navigation attempts. Every earned quest interaction preceding this point remains; subsequent capture resumes the actual earned save."
+      ],
+      "startedAt": "2026-10-20T00:13:46.983Z",
+      "trimStart": 6.328,
+      "failure": "Error: Navigation budget 36,-33.5",
+      "recordedSeconds": 233.312,
+      "includeRecordedPart": true,
+      "exportSeconds": 185
+    },
+    {
+      "source": "https://last-save-demo-3d.vercel.app/",
+      "part": "story-finale",
+      "width": 960,
+      "height": 600,
+      "chapters": [
+        {
+          "title": "Crownstone — final guardian answer",
+          "time": 0.013
+        },
+        {
+          "title": "Dawnwake — complete extraction, sunrise and item reveal",
+          "time": 15.035
+        },
+        {
+          "title": "Velvet City — same traveler, new world",
+          "time": 103.462
+        },
+        {
+          "title": "Homecoming — keepsakes and complete ending",
+          "time": 182.199
+        },
+        {
+          "title": "Settings, Investor Demo Mode and saved progress",
+          "time": 220.531
+        },
+        {
+          "title": "Journey complete — identity, outfit and home display saved",
+          "time": 237.323
+        }
+      ],
+      "errors": [],
+      "notes": [
+        "Continues the earned guardian checkpoint after the recorder targeted a column too closely. No quest progress was added."
+      ],
+      "startedAt": "2026-10-20T00:18:59.535Z",
+      "trimStart": 7.042,
+      "complete": true,
+      "recordedSeconds": 241.639
+    },
+    {
+      "source": "https://last-save-demo-3d.vercel.app/",
+      "part": "adventure",
+      "width": 960,
+      "height": 600,
+      "chapters": [
+        {
+          "title": "Adventure mode — crossing replay from a saved setup",
+          "time": 0.016
+        },
+        {
+          "title": "Timed challenge — real failure and retry",
+          "time": 18.791
+        }
+      ],
+      "errors": [],
+      "notes": [
+        "This separate challenge replay loads the recorded traveler at an explicit crossing setup, with the forest echo already earned. No challenge rewards are pre-granted.",
+        "Adventure replay ended at {\"accepted\":true,\"flowers\":[0,1,2],\"mechanism\":true,\"steps\":2,\"memory\":0,\"echoes\":[\"forest\"],\"guardian\":0,\"sword\":false}"
+      ],
+      "startedAt": "2026-10-20T00:29:14.675Z",
+      "trimStart": 5.963,
+      "complete": true,
+      "recordedSeconds": 57.31
+    },
+    {
+      "source": "https://last-save-demo-3d.vercel.app/",
+      "part": "living",
+      "width": 960,
+      "height": 600,
+      "chapters": [
+        {
+          "title": "Living Quest — healer’s errand",
+          "time": 0.006
+        },
+        {
+          "title": "Moonfern gathering and forest ambush",
+          "time": 69.389
+        },
+        {
+          "title": "Hollow Wardens — strikes, dodges, loss and retreat",
+          "time": 83.172
+        },
+        {
+          "title": "Delivering the moonfern and receiving the lantern",
+          "time": 209.88
+        },
+        {
+          "title": "The moonfern lantern at home",
+          "time": 302.78
+        }
+      ],
+      "errors": [],
+      "notes": [
+        "A real encounter loss returned the character to the trail; herbs retained.",
+        "A real encounter loss returned the character to the trail; herbs retained.",
+        "A real encounter loss returned the character to the trail; herbs retained.",
+        "A real encounter loss returned the character to the trail; herbs retained.",
+        "A real encounter loss returned the character to the trail; herbs retained.",
+        "Living Quest enemy defeat: false",
+        "The operator ended the repeated combat-input loop after several real losses. No game state was changed: Wardens remained undefeated; the actual retreat, delivery reward and home display were then recorded normally."
+      ],
+      "startedAt": "2026-10-20T00:23:28.112Z",
+      "trimStart": 6.314,
+      "complete": true,
+      "recordedSeconds": 333.15
+    }
+  ],
+  "verification": {
+    "browserPlayback": true,
+    "validatedSeekTimes": [
+      3,
+      100,
+      488,
+      514,
+      615,
+      730,
+      910,
+      1094
+    ],
+    "fullVideoDecodeAndContactSheet": true,
+    "fullAudioDecode": true,
+    "audioMeanDb": -24.8,
+    "audioPeakDb": -8.7,
+    "mainBranchAndProductionHtmlUnchanged": true
+  }
+}

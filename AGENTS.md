@@ -1,5 +1,16 @@
 # LAST SAVE — continuity and publication
 
+## Media branch override
+
+`media/main-playthrough` is for recording the regular deployed demo. Keep its
+recording tools, evidence and publication notes on this branch. Do not merge
+these files into `main` or redeploy either game as part of a video task. The
+recorded main baseline is `c193b5d36e360522a804fe0130ff7be3ed0a03f3`.
+See `docs/PLAYTHROUGH_RECORDING.md` and `docs/recording/` for exact capture scope,
+checkpoint continuations, edits and verification. Finished video belongs in a
+GitHub release, not in Git history. These recording rules override the game
+deployment directions below for this branch.
+
 This is the 3D investor demo, built on the earlier third-person study. Preserve the old `/workspace/last-save-demo` prototype and `/workspace/last-save` full-game preproduction project.
 
 User-approved repository: `hamzahelhafdaoui/last-save-demo-3d-v0.1`. The user explicitly approved public source in chat on 2026-10-16; ignore the earlier AI-generated directive's private-source clause.

@@ -7,6 +7,7 @@ import json
 import pathlib
 import subprocess
 import sys
+import os
 
 root = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "recordings").resolve()
 parts = sys.argv[2:] or ["story", "story-end", "story-finale", "adventure", "living"]
@@ -20,15 +21,21 @@ for part in parts:
     if not data.get("complete") and not data.get("includeRecordedPart"):
         raise RuntimeError(f"{part} did not complete: {data.get('failure')}")
     output = root / (part + ".mp4")
+    reuse = os.environ.get("RECORD_REUSE_VIDEO") == "1" and output.exists()
+    target = root / (part + ".normalized.mp4") if reuse else output
+    video_input = output if reuse else data["rawVideo"]
+    video_options = ["-c:v", "copy"] if reuse else ["-vf", "fps=25", "-c:v", "libx264", "-preset", "veryfast", "-crf", "20", "-pix_fmt", "yuv420p"]
     subprocess.run([
         "ffmpeg", "-y", "-hide_banner", "-loglevel", "warning",
-        "-ss", str(data["trimStart"]), "-i", data["rawVideo"],
+        "-ss", "0" if reuse else str(data["trimStart"]), "-i", str(video_input),
         "-i", str(root / (part + "-audio.webm")),
         "-map", "0:v:0", "-map", "1:a:0", "-t", str(data.get("exportSeconds", data["recordedSeconds"])),
-        "-vf", "fps=25", "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
-        "-pix_fmt", "yuv420p", "-af", "volume=10dB,alimiter=level=false:limit=0.95", "-c:a", "aac", "-b:a", "128k",
-        "-movflags", "+faststart", str(output)
+        *video_options,
+        "-af", "aresample=async=1000:first_pts=0,volume=10dB,alimiter=level=false:limit=0.95", "-c:a", "aac", "-b:a", "128k",
+        "-movflags", "+faststart", str(target)
     ], check=True)
+    if reuse:
+        target.replace(output)
     duration = float(subprocess.check_output([
         "ffprobe", "-v", "error", "-show_entries", "format=duration",
         "-of", "default=noprint_wrappers=1:nokey=1", str(output)
@@ -52,6 +59,7 @@ final = pathlib.Path("/workspace/deliverables/last-save-main-complete-playthroug
 final.parent.mkdir(parents=True, exist_ok=True)
 subprocess.run(["ffmpeg", "-y", "-hide_banner", "-loglevel", "warning", "-f", "concat",
                 "-safe", "0", "-i", str(root / "parts.txt"), "-i", str(root / "chapters.ffmeta"),
-                "-map_metadata", "1", "-map_chapters", "1", "-c", "copy", "-movflags", "+faststart",
+                "-map_metadata", "1", "-map_chapters", "1", "-c:v", "copy", "-c:a", "aac", "-b:a", "128k",
+                "-af", "aresample=async=1000:first_pts=0", "-movflags", "+faststart",
                 str(final)], check=True)
 print(str(final), "seconds", offset, "bytes", final.stat().st_size)

@@ -54,3 +54,27 @@ peak limiter for listening. It does not generate game footage, interpolate
 frames, replace music, or speed up authored cinematics. Raw videos,
 save exports and diagnostic logs remain outside Git; the final MP4 and chapter
 index are intended as release assets.
+
+## Verified recording
+
+The exported regular-demo walkthrough runs **18 minutes 23 seconds**, at
+960 × 600, H.264 video and stereo AAC audio. It has 22 chapter markers. The
+video decoded for a full contact-sheet pass; the complete audio decoded without
+errors and peaked at −8.7 dB. Chromium played the actual MP4 and successfully
+sought to eight checked timestamps using a local byte-range server.
+
+Living Quest includes real strikes, dodges, repeated losses, retreat, delivery
+and the physical home lantern. **A Warden victory was not recorded.** The
+operator ended the repeated combat-input routine without changing game state.
+Adventure shows its actual timeout, restart and attempted harder jumps; that
+retry reached two rune stones. The complete three-stone route and reward are
+already included in Story Tour. Neither extra chapter is presented as a perfect
+winning run.
+
+Exact capture ranges, recorded limitations, source SHA and file checksum are in
+`docs/recording/capture.json`; timestamps are in `docs/recording/chapters.txt`.
+The original main remote SHA and public HTML remained unchanged.
+
+To review the MP4 after export, run `node tools/serve-recording.cjs`, then
+`node tools/check-recording.cjs`. The review server supports HTTP byte ranges;
+a server that ignores range requests can misleadingly reset seeks to zero.
