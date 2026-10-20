@@ -8,7 +8,10 @@ these files into `main` or redeploy either game as part of a video task. The
 recorded main baseline is `c193b5d36e360522a804fe0130ff7be3ed0a03f3`.
 See `docs/PLAYTHROUGH_RECORDING.md` and `docs/recording/` for exact capture scope,
 checkpoint continuations, edits and verification. Finished video belongs in a
-GitHub release, not in Git history. These recording rules override the game
+GitHub release. `recording-upload/` is an explicit transfer exception: its three
+sub-100-MB chunks preserve the exact verified MP4 while GitHub Actions uploads
+it, because this session's direct `uploads.github.com` credentials were rejected.
+Do not alter their bytes; verify the SHA-256 before publication. These recording rules override the game
 deployment directions below for this branch.
 
 This is the 3D investor demo, built on the earlier third-person study. Preserve the old `/workspace/last-save-demo` prototype and `/workspace/last-save` full-game preproduction project.

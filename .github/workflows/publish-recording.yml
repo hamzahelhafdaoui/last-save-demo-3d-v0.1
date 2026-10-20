@@ -1,0 +1,26 @@
+name: Publish verified main-demo recording
+on:
+  push:
+    branches: [media/main-playthrough]
+    paths:
+      - recording-upload/**
+      - .github/workflows/publish-recording.yml
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reassemble the exact verified MP4
+        run: |
+          cat recording-upload/video.part-0 recording-upload/video.part-1 recording-upload/video.part-2 > last-save-main-complete-playthrough.mp4
+          sha256sum --check recording-upload/last-save-main-playthrough.sha256
+      - name: Upload video and publish the prepared release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          gh release upload main-playthrough-2026-10-20 last-save-main-complete-playthrough.mp4 recording-upload/last-save-main-chapters.txt recording-upload/last-save-main-playthrough.sha256 --clobber
+          gh release edit main-playthrough-2026-10-20 --draft=false --latest=false

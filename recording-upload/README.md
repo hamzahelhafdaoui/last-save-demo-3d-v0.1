@@ -1,0 +1,1 @@
+These byte chunks concatenate in numeric order to the exact verified MP4. They are an upload handoff for GitHub Actions, not playable clips. The workflow checks the attached SHA-256 before uploading the finished video to the release. The main game is unchanged.
