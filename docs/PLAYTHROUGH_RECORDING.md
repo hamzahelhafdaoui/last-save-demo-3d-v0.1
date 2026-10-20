@@ -14,6 +14,9 @@ Install the project dependencies, system Chromium, Xvfb/Mesa and FFmpeg, then ru
 
 ```sh
 DISPLAY=:95 LIBGL_ALWAYS_SOFTWARE=1 node tools/record-demo.cjs
+# Only when continuing that recorder's earned failure checkpoint:
+DISPLAY=:95 LIBGL_ALWAYS_SOFTWARE=1 PART=story-end node tools/record-demo.cjs
+DISPLAY=:95 LIBGL_ALWAYS_SOFTWARE=1 PART=story-finale node tools/record-demo.cjs
 DISPLAY=:95 LIBGL_ALWAYS_SOFTWARE=1 PART=living node tools/record-demo.cjs
 DISPLAY=:95 LIBGL_ALWAYS_SOFTWARE=1 PART=adventure node tools/record-demo.cjs
 python3 tools/export-recording.py recordings
@@ -27,14 +30,27 @@ direct public access can remove the proxy launch option. Output is 960 × 600,
 
 The recorder uses actual keyboard, pointer and menu controls on the public
 deployment. Read-only debug information guides navigation. The main story starts
-fresh; Living Quest continues the earned story save. Adventure is a separate,
+fresh. Its first recording completed the forest and physical crossing, then
+stopped when the navigation routine could not re-climb the last stone from the
+reward side. The export retains the complete opening-through-crossing content
+and trims the repeated navigation attempts after the reward.
+`story-end` continues the actually earned checkpoint along a ground route. No
+items, quest progress or cinematic rewards are added to that checkpoint. A
+second navigation stop targeted the third guardian rune too close to a column;
+`story-finale` resumes the same earned save and performs the final rune answer
+normally. The exported earlier part ends after the first two answers. These
+breaks and cut points are recorded in the capture manifests; this is a chaptered
+walkthrough, not a claim of one uninterrupted fresh-save run.
+Living Quest continues the earned story save. Adventure is a separate,
 explicit crossing replay setup, with the forest echo already earned and no
 crossing or sword reward granted. It is not presented as a single fresh-save run
 through all three modes. Music and effects are captured from the game's own Web
 Audio output, including both Howler and synthesized cues.
 
-The export trims the initial browser/bootstrap wait from each part and joins
-the separately recorded mode chapters. It does not generate game footage,
-interpolate frames, replace music, or speed up authored cinematics. Raw videos,
+The export trims initial browser/bootstrap waits and the documented recorder
+navigation stalls, then joins the separately recorded chapters. No quest step
+or authored cinematic is shortened. It boosts the captured audio by 10 dB with a
+peak limiter for listening. It does not generate game footage, interpolate
+frames, replace music, or speed up authored cinematics. Raw videos,
 save exports and diagnostic logs remain outside Git; the final MP4 and chapter
 index are intended as release assets.

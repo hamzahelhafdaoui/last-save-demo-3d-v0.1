@@ -1,7 +1,7 @@
 """Export recorded live gameplay and its captured Web Audio as H.264/AAC MP4.
 
 No AI-generated game footage, interpolation, speed changes or replacement music.
-Only the initial browser/bootstrap wait is trimmed from each recording part.
+Browser/bootstrap waits and documented recorder-navigation stalls are trimmed.
 """
 import json
 import pathlib
@@ -9,7 +9,7 @@ import subprocess
 import sys
 
 root = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else "recordings").resolve()
-parts = sys.argv[2:] or ["story", "living", "adventure"]
+parts = sys.argv[2:] or ["story", "story-end", "story-finale", "adventure", "living"]
 offset = 0.0
 chapters = [";FFMETADATA1", "title=LAST SAVE — complete main demo walkthrough",
             "comment=Actual browser gameplay; separate mode chapters; original game audio."]
@@ -17,16 +17,16 @@ concat = []
 summary = []
 for part in parts:
     data = json.loads((root / (part + ".json")).read_text())
-    if not data.get("complete"):
+    if not data.get("complete") and not data.get("includeRecordedPart"):
         raise RuntimeError(f"{part} did not complete: {data.get('failure')}")
     output = root / (part + ".mp4")
     subprocess.run([
         "ffmpeg", "-y", "-hide_banner", "-loglevel", "warning",
         "-ss", str(data["trimStart"]), "-i", data["rawVideo"],
         "-i", str(root / (part + "-audio.webm")),
-        "-map", "0:v:0", "-map", "1:a:0", "-t", str(data["recordedSeconds"]),
+        "-map", "0:v:0", "-map", "1:a:0", "-t", str(data.get("exportSeconds", data["recordedSeconds"])),
         "-vf", "fps=25", "-c:v", "libx264", "-preset", "veryfast", "-crf", "20",
-        "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "128k",
+        "-pix_fmt", "yuv420p", "-af", "volume=10dB,alimiter=level=false:limit=0.95", "-c:a", "aac", "-b:a", "128k",
         "-movflags", "+faststart", str(output)
     ], check=True)
     duration = float(subprocess.check_output([

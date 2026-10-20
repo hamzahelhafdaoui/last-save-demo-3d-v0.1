@@ -46,8 +46,11 @@ async function go(x,z,tol=0.85,options={}){
     if(prev && Math.hypot(prev.x-d.position.x,prev.z-d.position.z)<.025)stuck++;else stuck=0;
     prev=d.position;
     if(stuck>12){
-      if(hops++<3){console.log('JUMP RECOVERY',JSON.stringify(d.position),x,z);await p.keyboard.press('Space');stuck=0;}
+      console.log('ROUTE RECOVERY',JSON.stringify(d.position),x,z,hops);
+      if(hops===0||hops===3){await p.keyboard.press('Space');}
+      else if(hops===1||hops===2){await keys(new Set([hops===1?'a':'d']));await pause(hops===1?800:1600);await rest();}
       else {await rest();throw Error('Blocked navigation '+JSON.stringify({at:d.position,to:[x,z]}));}
+      hops++;stuck=0;
     }
   }
   throw Error('Navigation budget '+x+','+z);
@@ -77,6 +80,8 @@ async function audioHook(){
   window.stopRecordingAudio=()=>new Promise(resolve=>{rec.onstop=async()=>{const bytes=new Uint8Array(await new Blob(chunks).arrayBuffer());let out='';for(let i=0;i<bytes.length;i+=32768)out+=String.fromCharCode(...bytes.subarray(i,i+32768));resolve(btoa(out));};rec.stop();});
 }
 async function story(){
+  if(PART!=='story-finale'){
+  if(PART==='story'){
   await chapter('Opening — full cinematic');await click('Begin adventure');
   await p.getByRole('dialog',{name:'Create your character'}).waitFor({timeout:120000});
   await chapter('Character creation');
@@ -107,8 +112,12 @@ async function story(){
   await go(-33,-34,.45);await p.waitForFunction(()=>window.lastSaveDebug().quest.steps===2);
   await go(-37,-37,.45);await p.waitForFunction(()=>window.lastSaveDebug().quest.steps===3);
   await go(-40,-40,1);await interact('crossing-echo');await pause(3000);await screenshot('crossing');
+  }else{
+    manifest.notes.push('Continues the actually earned first-part save after a blocked return ledge stopped the recorder. No progress or rewards were added.');
+    await chapter('Continue earned story — crossing exit recovery');await click('Continue your story');await world('lumen');
+  }
   await chapter('Belonging — the memory archive');
-  await go(-37,-37,.5);await go(-33,-34,.5);await go(-29,-31,.5);await go(-26,-28,.5);await go(-24,-24);
+  await go(-41,-38.5,.7);await go(-42,-26);await go(-24,-24);
   await go(-17,-24);await go(0,-23);await go(18,-26);await go(21,-43);await go(15,-43);
   for(const [i,x,z] of [[0,12,-46.5],[1,15,-46.5],[2,18,-46.5]]){await go(x,z,.8);await interact('memory-'+i);await pause(2000);}
   assert.equal((await debug()).quest.echoes.length,3);await panel('j');
@@ -116,8 +125,13 @@ async function story(){
   await go(15,-42);await go(21,-42);await go(22,-24);await go(33,-24);await go(33,-32,.7);
   // Approach between the first two answer runes to listen before answering.
   await go(32.2,-34.5,.3);await interact('guardian');await dialogue('Continue',8000);
-  for(const [i,x,z] of [[0,30,-33.5],[1,33,-32],[2,36,-33.5]]){await go(x,z,.7);await interact('guardian-'+i);await pause(1200);}
-  await go(33,-35.8,.7);await lookAt(33,-39);await screenshot('sanctuary');
+  for(const [i,x,z] of [[0,30,-33.5],[1,33,-32],[2,36,-33.5]]){await go(x,z,1.2);await interact('guardian-'+i);await pause(1200);}
+  }else{
+    manifest.notes.push('Continues the earned guardian checkpoint after the recorder targeted a column too closely. No quest progress was added.');
+    await chapter('Crownstone — final guardian answer');await click('Continue your story');await world('lumen');
+    await interact('guardian-2');await pause(1800);
+  }
+  await go(33,-35.8,1.1);await lookAt(33,-39);await screenshot('sanctuary');
   await chapter('Dawnwake — complete extraction, sunrise and item reveal');await interact('sword');
   await p.waitForFunction(()=>window.lastSaveDebug().mode==='reveal',null,{timeout:150000});
   await pause(9000);await screenshot('dawnwake');await click('Carry it into the next world');
@@ -142,6 +156,7 @@ async function living(){
   await chapter('Living Quest — healer’s errand');
   await click('Continue your story');await world('home');
   await p.keyboard.press('Escape');await p.getByLabel('Experience mode').selectOption('quest');await pause(3000);await click('Return to the world');
+  await p.keyboard.press('i');await pause(2500);await click('Equip Dawnwake');await pause(2500);await click('Close panel');
   await go(-4,-6);await interact('portal-lumen');await world('lumen');
   await go(10,-28);await interact('healer');await dialogue('I’ll bring it back',8000);
   await panel('j',5000);await go(0,-24);await go(-.5,3);await go(-16,19,1);
@@ -152,6 +167,7 @@ async function living(){
   for(let i=0;i<120;i++){
     const state=await save();if(state.sideQuest.defeated)break;
     const d=await debug();
+    if(i%5===0){console.log('COMBAT',i,await p.locator('.encounter-hud').innerText().catch(()=>''));await screenshot('combat-current');}
     if(d.position.z>22){manifest.notes.push('A real encounter loss returned the character to the trail; herbs retained.');await go(-13,15,1);}
     await p.keyboard.press('f');
     if(i%4===0){await keys(new Set(['a']));await p.keyboard.press('q');await pause(350);await rest();}
@@ -163,7 +179,7 @@ async function living(){
   await go(-3,10);await go(-.5,3);await go(-.5,-24);await go(10,-28);await interact('healer');await dialogue('Deliver moonfern',9000);
   assert((await debug()).inventory.includes('moonfern-lantern'));await panel('i',6500);
   await go(0,-24);await go(-.5,3);await go(-1,25);await interact('portal-home');await world('home');
-  await chapter('The moonfern lantern at home');await go(4,7);await lookAt(8,8);await pause(7000);await screenshot('lantern');
+  await chapter('The moonfern lantern at home');await go(-7,-3);await interact('display');await go(4,-1);await lookAt(6,-4);await pause(7000);await screenshot('lantern');await lookAt(0,13);await pause(5000);
   fs.writeFileSync(path.join(ROOT,'living-save.json'),JSON.stringify(await save(),null,2));
 }
 async function adventure(){
@@ -189,7 +205,7 @@ async function adventure(){
   browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:false,proxy:{server:process.env.HTTPS_PROXY},args:['--no-sandbox','--use-gl=angle','--use-angle=gl','--ignore-gpu-blocklist','--enable-webgl','--autoplay-policy=no-user-gesture-required']});
   context=await browser.newContext({viewport:{width:960,height:600},deviceScaleFactor:1,recordVideo:{dir:path.join(ROOT,'raw'),size:{width:960,height:600}},acceptDownloads:true});
   await context.addInitScript(audioHook);
-  const seed=PART==='story'?{version:2,created:false,settings:{quality:'low',volume:.65}}:JSON.parse(fs.readFileSync(path.join(ROOT,'story-save.json'),'utf8'));
+  const seed=PART==='story'?{version:2,created:false,settings:{quality:'low',volume:.65}}:JSON.parse(fs.readFileSync(path.join(ROOT,PART==='story-end'?'story-failure-save.json':PART==='story-finale'?'story-end-failure-save.json':'story-save.json'),'utf8'));
   if(PART==='adventure')Object.assign(seed,{world:'lumen',experience:'adventure',positions:{lumen:{x:-24,z:-26}},quest:{accepted:true,flowers:[0,1,2],echoes:['forest'],mechanism:false,steps:0,memory:0,guardian:0,sword:false},inventory:['forest-echo'],equipment:{sword:false,jacket:false},home:{sword:false},ending:false});
   await context.addInitScript(seed=>{if(!sessionStorage.getItem('recording-seeded')){localStorage.setItem('last-save.investor.v2',JSON.stringify(seed));sessionStorage.setItem('recording-seeded','yes');}},seed);
   videoWall=Date.now();p=await context.newPage();p.setDefaultTimeout(90000);
@@ -198,7 +214,7 @@ async function adventure(){
   await p.goto(BASE+'?debug');await p.getByRole('button',{name:PART==='story'?'Begin adventure':'Continue your story'}).waitFor();
   await pause(2500);origin=Date.now();manifest.trimStart=(origin-videoWall)/1000;
   await p.evaluate(()=>window.startRecordingAudio());
-  if(PART==='story')await story();else if(PART==='living')await living();else await adventure();
+  if(PART.startsWith('story'))await story();else if(PART==='living')await living();else await adventure();
   manifest.complete=true;
 })().catch(async e=>{manifest.failure=e.stack;console.error(e.stack);if(p){await rest().catch(()=>{});await screenshot('failure').catch(()=>{});fs.writeFileSync(path.join(ROOT,PART+'-failure-save.json'),JSON.stringify(await save().catch(()=>null),null,2));}process.exitCode=1;}).finally(async()=>{
   if(p){manifest.recordedSeconds=(Date.now()-origin)/1000;try{const audio=await p.evaluate(()=>window.stopRecordingAudio());fs.writeFileSync(path.join(ROOT,PART+'-audio.webm'),Buffer.from(audio,'base64'));}catch(e){manifest.notes.push('Audio export: '+e.message);}const video=p.video();await context.close();manifest.rawVideo=await video.path();}
