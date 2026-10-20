@@ -1,5 +1,9 @@
 # Main-demo recording
 
+Published video: https://github.com/hamzahelhafdaoui/last-save-demo-3d-v0.1/releases/tag/main-playthrough-2026-10-20
+
+Direct MP4: https://github.com/hamzahelhafdaoui/last-save-demo-3d-v0.1/releases/download/main-playthrough-2026-10-20/last-save-main-complete-playthrough.mp4
+
 This media branch preserves the recording tools for the **regular** LAST SAVE demo.
 It does not modify gameplay, assets or the main Vercel project. The separate AMAN
 experiment is not the subject of this recording.
@@ -54,6 +58,11 @@ peak limiter for listening. It does not generate game footage, interpolate
 frames, replace music, or speed up authored cinematics. Raw videos,
 save exports and diagnostic logs remain outside Git; the final MP4 and chapter
 index are intended as release assets.
+
+The release is published. The direct session upload returned HTTP 401 on
+`uploads.github.com`; repository workflow run `39348970755` reassembled the
+exact video, verified its SHA-256 and uploaded all three assets successfully
+with GitHub Actions' own token. No quality reduction or game changes were used.
 
 ## Verified recording
 
