@@ -9,18 +9,19 @@ Live game: https://last-save-demo-3d.vercel.app/
 
 ## Reproduce
 
-Install the project dependencies, system Chromium and FFmpeg, then run
+Install the project dependencies, system Chromium, Xvfb/Mesa and FFmpeg, then run
 `npx playwright install ffmpeg`. Run from the repository root:
 
 ```sh
-node tools/record-demo.cjs
-PART=living node tools/record-demo.cjs
-PART=adventure node tools/record-demo.cjs
+DISPLAY=:95 LIBGL_ALWAYS_SOFTWARE=1 node tools/record-demo.cjs
+DISPLAY=:95 LIBGL_ALWAYS_SOFTWARE=1 PART=living node tools/record-demo.cjs
+DISPLAY=:95 LIBGL_ALWAYS_SOFTWARE=1 PART=adventure node tools/record-demo.cjs
 python3 tools/export-recording.py recordings
 ```
 
-The default Chromium location is `/usr/bin/chromium`. For this cloud environment,
-Playwright uses the inherited HTTPS proxy and software WebGL. A local setup with
+The default Chromium location is `/usr/bin/chromium`. Start an Xvfb display at
+`:95` (or select an existing display) before recording. For this cloud environment,
+Playwright uses the inherited HTTPS proxy and Mesa software OpenGL. A local setup with
 direct public access can remove the proxy launch option. Output is 960 × 600,
 25-fps H.264/AAC; rendered frames depend on the recording host's performance.
 

@@ -59,7 +59,7 @@ async function interact(id){
 }
 async function world(id){await p.waitForFunction(id=>window.lastSaveDebug()?.world===id&&window.lastSaveDebug()?.mode==='play',id,{timeout:120000});await pause(1800);}
 async function dialogue(button,ms=6500){await pause(ms);await click(button);}
-async function panel(key,ms=6000){await rest();await p.keyboard.press(key);await pause(ms);await click('Close panel');}
+async function panel(key,ms=6000){await rest();await p.keyboard.press(key);await pause(ms/2);await p.mouse.move(700,400);await p.mouse.wheel(0,500);await pause(ms/2);await click('Close panel');}
 async function screenshot(name){await p.screenshot({path:path.join(ROOT,PART+'-'+name+'.png')});}
 async function audioHook(){
   const Native=window.AudioContext || window.webkitAudioContext;
@@ -186,7 +186,7 @@ async function adventure(){
   await screenshot('adventure-end');
 }
 (async()=>{
-  browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,proxy:{server:process.env.HTTPS_PROXY},args:['--no-sandbox','--use-gl=angle','--use-angle=swiftshader','--enable-unsafe-swiftshader','--autoplay-policy=no-user-gesture-required']});
+  browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:false,proxy:{server:process.env.HTTPS_PROXY},args:['--no-sandbox','--use-gl=angle','--use-angle=gl','--ignore-gpu-blocklist','--enable-webgl','--autoplay-policy=no-user-gesture-required']});
   context=await browser.newContext({viewport:{width:960,height:600},deviceScaleFactor:1,recordVideo:{dir:path.join(ROOT,'raw'),size:{width:960,height:600}},acceptDownloads:true});
   await context.addInitScript(audioHook);
   const seed=PART==='story'?{version:2,created:false,settings:{quality:'low',volume:.65}}:JSON.parse(fs.readFileSync(path.join(ROOT,'story-save.json'),'utf8'));
