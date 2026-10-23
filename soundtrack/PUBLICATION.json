@@ -1,0 +1,41 @@
+{
+  "verified_at_utc": "2026-10-23",
+  "release": "https://github.com/hamzahelhafdaoui/last-save-demo-3d-v0.1/releases/tag/soundtrack-production-2026-10-23",
+  "release_source_commit": "20b24b3ef5a40e838ea35629ddaea3bfc1b63390",
+  "publication_workflow": "https://github.com/hamzahelhafdaoui/last-save-demo-3d-v0.1/actions/runs/39962026970",
+  "publication_workflow_conclusion": "success",
+  "public_downloads": [
+    {
+      "name": "LAST-SAVE-Soundtrack-Production.zip",
+      "public_http": 200,
+      "bytes": 149771102,
+      "sha256": "be97e6a8a35672f2e8c198d52c57853459c58c4b2de33ccd4daf33df91a4cd32",
+      "identical_to_verified_local_file": true
+    },
+    {
+      "name": "LAST-SAVE-Production.png",
+      "public_http": 200,
+      "bytes": 193743,
+      "sha256": "af0b25377a75628fc6d17b77bac54b973b1826c07dde4d106b25259c299ce49b",
+      "identical_to_verified_local_file": true
+    },
+    {
+      "name": "Listen-Full-Score.mp3",
+      "public_http": 200,
+      "bytes": 2305196,
+      "sha256": "9ab6495fc585ca5d1f2123a967821cf003b7ddff682a5bbfcaab638ac9246e38",
+      "identical_to_verified_local_file": true
+    }
+  ],
+  "downloaded_zip_validation": {
+    "files": 80,
+    "stems": 24,
+    "reference_wavs": 4,
+    "midi_files": 28,
+    "native_sessions": 5,
+    "resolved_session_audio_items": 56
+  },
+  "main_game_commit_unchanged": "c193b5d36e360522a804fe0130ff7be3ed0a03f3",
+  "public_game_html_unchanged": true,
+  "main_production_url": "https://last-save-demo-3d.vercel.app/"
+}
