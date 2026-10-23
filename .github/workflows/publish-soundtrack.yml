@@ -1,0 +1,37 @@
+name: Publish verified soundtrack production pack
+on:
+  push:
+    branches: [media/soundtrack-production]
+    paths:
+      - soundtrack/upload/**
+      - .github/workflows/publish-soundtrack.yml
+permissions:
+  contents: write
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Reassemble exact production ZIP
+        run: |
+          mkdir -p soundtrack/artifacts
+          cat soundtrack/upload/production.part-* > soundtrack/artifacts/LAST-SAVE-Soundtrack-Production.zip
+          cp soundtrack/upload/LAST-SAVE-Soundtrack-Production.zip.sha256 soundtrack/artifacts/
+      - name: Verify complete archive checksum
+        working-directory: soundtrack/artifacts
+        run: sha256sum --check LAST-SAVE-Soundtrack-Production.zip.sha256
+      - name: Verify file manifests, audio, sessions and picture
+        run: python soundtrack/authoring/verify-package.py soundtrack/artifacts/LAST-SAVE-Soundtrack-Production.zip
+      - name: Extract standalone listening preview
+        run: unzip -p soundtrack/artifacts/LAST-SAVE-Soundtrack-Production.zip LAST-SAVE-Soundtrack-Production/Listen-Full-Score.mp3 > soundtrack/artifacts/Listen-Full-Score.mp3
+      - name: Publish permanent downloads
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if ! gh release view soundtrack-production-2026-10-23 --json id > /dev/null 2>&1; then
+            gh release create soundtrack-production-2026-10-23 --target "$GITHUB_SHA" --draft --title "LAST SAVE — editable soundtrack production" --notes-file soundtrack/RELEASE-NOTES.md
+          fi
+          gh release upload soundtrack-production-2026-10-23 soundtrack/artifacts/LAST-SAVE-Soundtrack-Production.zip soundtrack/artifacts/LAST-SAVE-Soundtrack-Production.zip.sha256 soundtrack/LAST-SAVE-Production.png soundtrack/artifacts/Listen-Full-Score.mp3 soundtrack/README.txt --clobber
+          gh release edit soundtrack-production-2026-10-23 --draft=false --latest=false

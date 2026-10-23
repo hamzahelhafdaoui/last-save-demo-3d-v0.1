@@ -1,0 +1,9 @@
+These four original procedural musical sketches and synthesis code were
+created for the LAST SAVE project. No third-party samples, recordings,
+franchise melodies or purchased sound libraries were used in these exports.
+The LAST SAVE project owner may edit, arrange, produce and use them in the
+game and its promotional work. This file does not grant a general public
+license to unrelated third parties or alter the repository's licensing.
+REAPER is a separate application owned by Cockos; it is not redistributed
+here. REAPER screenshots identify the actual application used to display the
+provided session, not an endorsement. FL Studio is owned by Image-Line.

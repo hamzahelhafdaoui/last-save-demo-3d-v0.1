@@ -1,0 +1,55 @@
+{
+  "sessions": [
+    {
+      "project": "home/LAST-SAVE-home.rpp",
+      "reference_muted": true,
+      "quarter_notes": 16.0,
+      "duration_seconds": 24,
+      "tracks": 7,
+      "regions": 1,
+      "missing_assets": 0,
+      "loaded_wav_items": 7
+    },
+    {
+      "project": "lumen/LAST-SAVE-lumen.rpp",
+      "reference_muted": true,
+      "quarter_notes": 16.0,
+      "duration_seconds": 24,
+      "tracks": 7,
+      "regions": 1,
+      "missing_assets": 0,
+      "loaded_wav_items": 7
+    },
+    {
+      "project": "city/LAST-SAVE-city.rpp",
+      "reference_muted": true,
+      "quarter_notes": 48.0,
+      "duration_seconds": 24,
+      "tracks": 7,
+      "regions": 1,
+      "missing_assets": 0,
+      "loaded_wav_items": 7
+    },
+    {
+      "project": "sanctuary/LAST-SAVE-sanctuary.rpp",
+      "reference_muted": true,
+      "quarter_notes": 16.0,
+      "duration_seconds": 24,
+      "tracks": 7,
+      "regions": 1,
+      "missing_assets": 0,
+      "loaded_wav_items": 7
+    },
+    {
+      "project": "LAST-SAVE-Full-Production.rpp",
+      "reference_muted": true,
+      "quarter_notes": 96.0,
+      "duration_seconds": 96,
+      "tracks": 7,
+      "regions": 4,
+      "missing_assets": 0,
+      "loaded_wav_items": 28
+    }
+  ],
+  "application": "REAPER 7.82 Linux x86_64"
+}

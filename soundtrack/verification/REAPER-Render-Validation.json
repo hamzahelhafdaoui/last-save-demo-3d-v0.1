@@ -1,0 +1,11 @@
+{
+  "application": "REAPER 7.82 Linux x86_64",
+  "render": "96 second full session, offline master mix",
+  "sample_rate": 48000,
+  "bits": 24,
+  "channels": 2,
+  "frames": 4608000,
+  "max_error_vs_sum_of_exported_stems": 0.0,
+  "max_error_dbfs": "-inf (zero difference)",
+  "clipped_samples": 0
+}

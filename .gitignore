@@ -4,3 +4,5 @@ dist/
 .env*
 test-results/
 *.zip
+soundtrack/generated/
+soundtrack/artifacts/
